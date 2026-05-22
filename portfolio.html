@@ -1566,50 +1566,106 @@ function dpTriggerById(id){
 //  INIT
 // ---
 function initApp(){
-  // Start showing portfolio immediately with local data
-  showPortfolio();
-  // Then load from cloud and refresh
-  loadFromCloud();
+  // Always load from cloud FIRST. Only fall back to local/demo if cloud is unreachable.
+  setSyncStatus("syncing","Verbinde mit Cloud...");
+  showPortfolio(); // show loading state immediately
+
+  sbGet(PORT_KEY,function(err,cloudPortfolio){
+    if(err){
+      // Cloud unreachable - use local data (or demo if also empty)
+      setSyncStatus("offline","Offline - lokale Daten");
+      if(portfolio.projects.length===0) createDemoIfNeeded(function(){renderProjects();});
+      else renderProjects();
+      return;
+    }
+
+    if(cloudPortfolio&&cloudPortfolio.projects&&cloudPortfolio.projects.length>0){
+      // --- Cloud has real data: always use it on new/empty device ---
+      var localHasRealData=portfolio.projects.length>0&&
+        !(portfolio.projects.length===1&&portfolio.projects[0].id==="demo_omv_001");
+
+      if(localHasRealData){
+        // Both have data - compare timestamps, take the newer one
+        var localMax=Math.max.apply(null,portfolio.projects.map(function(p){return p.created||0;}));
+        var cloudMax=Math.max.apply(null,cloudPortfolio.projects.map(function(p){return p.created||0;}));
+        if(localMax>cloudMax){
+          // Local is genuinely newer - push it up
+          pushAllToCloud();
+          return;
+        }
+      }
+
+      // Use cloud data
+      portfolio=cloudPortfolio;
+      localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+      sbGetAll(PROJ_KEY,function(err2,cloudRows){
+        if(!err2&&cloudRows){
+          cloudRows.forEach(function(row){
+            localStorage.setItem(row.key,JSON.stringify(row.value));
+          });
+        }
+        setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
+        renderProjects();
+      });
+
+    }else{
+      // Cloud is genuinely empty
+      if(portfolio.projects.length>0){
+        // Local has data - push it up to cloud
+        pushAllToCloud();
+      }else{
+        // Both empty - create demo project and push to cloud
+        createDemoIfNeeded(function(){
+          pushAllToCloud();
+          renderProjects();
+        });
+      }
+    }
+  });
+}
+
+function createDemoIfNeeded(cb){
+  var demoId="demo_omv_001";
+  var existing=null;
+  try{var _r=localStorage.getItem("omv_gantt_v3");if(_r)existing=JSON.parse(_r);}catch(e){}
+  portfolio.projects.push({id:demoId,name:"OMV Wasserstoff Elektrolyse",client:"OMV AG",
+    desc:"Befestigungstechnik fuer Elektrolyseanlage",projId:"PRJ-2026-001",location:"Wien, Oesterreich",
+    start:"2026-01-01",end:"2026-12-31",status:"active",color:"#378ADD",link:"",created:Date.now()});
+  var demoData;
+  if(existing&&existing.rows&&existing.rows.length>0){
+    demoData={rows:existing.rows,projectLink:existing.projectLink||"",
+      pStart:existing.pStart||"2026-01-01",pEnd:existing.pEnd||"2026-12-31",scale:existing.scale||"month"};
+  }else{
+    demoData={rows:[
+      {g:"CSA",gl:"",art:"Grating Fixing",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-05-31",m:"2026-03-15",pz:"",ls:"Offen",sf:"",uf:"85000"},
+      {g:"CSA",gl:"",art:"Primary Steel Baseplate",al:"",typ:"Planung",prio:"Medium",s:"2026-03-01",e:"2026-07-31",m:"2026-04-15",pz:"",ls:"In Bearbeitung",sf:"42000",uf:""},
+      {g:"E&I",gl:"",art:"Earthing/Bonding/Grounding",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-01-15",e:"2026-06-30",m:"2026-03-01",pz:"",ls:"Gewonnen",sf:"",uf:"120000"},
+      {g:"E&I",gl:"",art:"Electrical supports",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-07-31",m:"2026-03-20",pz:"",ls:"Verloren",sf:"",uf:"65000"},
+      {g:"Piping",gl:"",art:"Process Piping - Fastening",al:"",typ:"Ausfuehrung",prio:"High",s:"2026-02-15",e:"2026-06-30",m:"2026-04-01",pz:"",ls:"Offen",sf:"",uf:"95000"}
+    ],projectLink:"",pStart:"2026-01-01",pEnd:"2026-12-31",scale:"month"};
+  }
+  localStorage.setItem(PROJ_KEY+demoId,JSON.stringify(demoData));
+  localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+  if(cb)cb();
 }
 
 function loadFromCloud(){
   setSyncStatus("syncing","Lade Daten...");
-  // Load portfolio meta from cloud
   sbGet(PORT_KEY,function(err,cloudPortfolio){
-    if(err){
-      setSyncStatus("offline","Offline - lokale Daten");
-      return;
-    }
+    if(err){setSyncStatus("offline","Offline - lokale Daten");return;}
     if(cloudPortfolio&&cloudPortfolio.projects&&cloudPortfolio.projects.length>0){
-      // Cloud has data - use it (more up to date)
-      var cloudNewer=true;
-      if(portfolio.projects.length>0){
-        // Compare by project count and last created timestamp
-        var localMax=Math.max.apply(null,portfolio.projects.map(function(p){return p.created||0;}));
-        var cloudMax=Math.max.apply(null,cloudPortfolio.projects.map(function(p){return p.created||0;}));
-        cloudNewer=cloudMax>=localMax;
-      }
-      if(cloudNewer){
-        portfolio=cloudPortfolio;
-        localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
-        // Load all project data from cloud
-        sbGetAll(PROJ_KEY,function(err2,rows){
-          if(!err2&&rows){
-            rows.forEach(function(row){
-              localStorage.setItem(row.key,JSON.stringify(row.value));
-            });
-          }
-          setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
-          // If currently viewing portfolio, refresh it
-          if(!currentProjId)renderProjects();
-        });
-      }else{
-        // Local is newer - push local to cloud
-        pushAllToCloud();
-      }
+      portfolio=cloudPortfolio;
+      localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+      sbGetAll(PROJ_KEY,function(err2,cloudRows){
+        if(!err2&&cloudRows){
+          cloudRows.forEach(function(row){localStorage.setItem(row.key,JSON.stringify(row.value));});
+        }
+        setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
+        if(!currentProjId)renderProjects();
+        else{loadProjData(currentProjId);buildTable();buildSumCards();buildGantt();}
+      });
     }else{
-      // Cloud is empty - push local data up
-      pushAllToCloud();
+      setSyncStatus("ok","Cloud leer - lokale Daten");
     }
   });
 }
@@ -1620,40 +1676,15 @@ function pushAllToCloud(){
     if(err){setSyncStatus("error","Upload fehlgeschlagen");return;}
     var ids=portfolio.projects.map(function(p){return p.id;});
     var done=0;
-    if(ids.length===0){setSyncStatus("ok","Synchronisiert");return;}
+    if(ids.length===0){setSyncStatus("ok","Synchronisiert");renderProjects();return;}
     ids.forEach(function(id){
       var d=getProjData(id);
-      if(d){
-        sbSet(PROJ_KEY+id,d,function(){
-          done++;
-          if(done===ids.length)setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
-        });
-      }else{done++;if(done===ids.length)setSyncStatus("ok","Synchronisiert");}
+      if(d){sbSet(PROJ_KEY+id,d,function(){done++;if(done===ids.length){setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));renderProjects();}});}
+      else{done++;if(done===ids.length){setSyncStatus("ok","Synchronisiert");renderProjects();}}
     });
   });
 }
 
-// Migrate old standalone gantt data
-if(portfolio.projects.length===0){
-  var demoId="demo_omv_001";
-  portfolio.projects.push({id:demoId,name:"OMV Wasserstoff Elektrolyse",client:"OMV AG",
-    desc:"Befestigungstechnik fuer Elektrolyseanlage",projId:"PRJ-2026-001",location:"Wien, Oesterreich",
-    start:"2026-01-01",end:"2026-12-31",status:"active",color:"#378ADD",link:"",created:Date.now()});
-  var existing=null;
-  try{var _r=localStorage.getItem("omv_gantt_v3");if(_r)existing=JSON.parse(_r);}catch(e){}
-  if(existing&&existing.rows&&existing.rows.length>0){
-    localStorage.setItem(PROJ_KEY+demoId,JSON.stringify({rows:existing.rows,projectLink:existing.projectLink||"",pStart:existing.pStart||"2026-01-01",pEnd:existing.pEnd||"2026-12-31",scale:existing.scale||"month"}));
-  }else{
-    localStorage.setItem(PROJ_KEY+demoId,JSON.stringify({rows:[
-      {g:"CSA",gl:"",art:"Grating Fixing",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-05-31",m:"2026-03-15",pz:"",ls:"Offen",sf:"",uf:"85000"},
-      {g:"CSA",gl:"",art:"Primary Steel Baseplate",al:"",typ:"Planung",prio:"Medium",s:"2026-03-01",e:"2026-07-31",m:"2026-04-15",pz:"",ls:"In Bearbeitung",sf:"42000",uf:""},
-      {g:"E&I",gl:"",art:"Earthing/Bonding/Grounding",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-01-15",e:"2026-06-30",m:"2026-03-01",pz:"",ls:"Gewonnen",sf:"",uf:"120000"},
-      {g:"E&I",gl:"",art:"Electrical supports",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-07-31",m:"2026-03-20",pz:"",ls:"Verloren",sf:"",uf:"65000"},
-      {g:"Piping",gl:"",art:"Process Piping - Fastening",al:"",typ:"Ausfuehrung",prio:"High",s:"2026-02-15",e:"2026-06-30",m:"2026-04-01",pz:"",ls:"Offen",sf:"",uf:"95000"}
-    ],projectLink:"",pStart:"2026-01-01",pEnd:"2026-12-31",scale:"month"}));
-  }
-  savePortfolio();
-}
 initApp();
 </script>
 </body>
