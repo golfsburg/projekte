@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projektportfolio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;font-size:13px;color:#222;background:#f2f4f8;min-height:100vh;}
+a{color:#378ADD;text-decoration:none;}
+/* ── SHARED NAV ─────────────────────────────────────────── */
+.top-nav{background:#1a2a4a;color:#fff;padding:0 1.5rem;height:50px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.top-nav .logo{font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;}
+.top-nav .sep{color:rgba(255,255,255,.3);margin:0 2px;}
+.top-nav .nav-link{color:rgba(255,255,255,.75);font-size:12px;cursor:pointer;text-decoration:none;}
+.top-nav .nav-link:hover{color:#fff;}
+.top-nav .proj-crumb{font-size:13px;font-weight:600;color:#fff;}
+.top-nav .nav-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.top-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.nav-btn{font-size:11px;padding:4px 11px;border:1px solid rgba(255,255,255,.3);border-radius:4px;background:transparent;color:#fff;cursor:pointer;}
+.nav-btn:hover{background:rgba(255,255,255,.1);}
+.nav-btn.primary{background:#378ADD;border-color:#378ADD;}
+.nav-btn.primary:hover{background:#2a70c4;}
+.save-ind{font-size:11px;color:#1D9E75;display:none;}
+/* ── VIEWS ───────────────────────────────────────────────── */
+#view-portfolio{display:block;}
+#view-project{display:none;}
+/* ── PORTFOLIO ───────────────────────────────────────────── */
+.main{max-width:1400px;margin:0 auto;padding:1.5rem;}
+.global-cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.gcard{border-radius:8px;padding:12px 18px;flex:1;min-width:140px;background:#fff;border:1px solid #e0e5ef;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.gcard .gc-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:4px;}
+.gcard .gc-val{font-size:18px;font-weight:700;color:#1a2a4a;}
+.gcard .gc-sub{font-size:11px;color:#888;margin-top:2px;}
+.gcard.blue .gc-val{color:#1a3a8a;}.gcard.green .gc-val{color:#2a6010;}.gcard.red .gc-val{color:#7a1a1a;}
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.filter-bar input,.filter-bar select{font-size:11px;padding:4px 8px;border:0.5px solid #ccc;border-radius:4px;background:#fff;}
+.filter-bar input{width:200px;}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.proj-card{background:#fff;border-radius:8px;border:1px solid #e0e5ef;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden;transition:box-shadow .15s,transform .15s;}
+.proj-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.12);transform:translateY(-1px);}
+.proj-card-header{padding:12px 14px 10px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:10px;}
+.proj-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.proj-name{font-size:14px;font-weight:700;color:#1a2a4a;line-height:1.3;flex:1;}
+.proj-actions{display:flex;gap:4px;flex-shrink:0;}
+.ic-btn{width:26px;height:26px;border-radius:4px;border:0.5px solid #ddd;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+.ic-btn:hover{background:#f0f4ff;}
+.ic-btn.red:hover{background:#fce8e8;border-color:#e24b4a;}
+.proj-card-body{padding:10px 14px 12px;}
+.proj-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.meta-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.proj-dates{font-size:11px;color:#888;margin-bottom:7px;}
+.mini-gantt{height:6px;background:#eee;border-radius:3px;position:relative;margin-bottom:8px;overflow:hidden;}
+.mini-bar{position:absolute;height:100%;border-radius:3px;opacity:.85;}
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px;}
+.status-chip{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.s-gewonnen{background:#e8f4e8;color:#2a6010;}.s-bearbeitung{background:#faeeda;color:#854f0b;}.s-verloren{background:#fce8e8;color:#7a1a1a;}
+.fin-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid #f0f0f0;padding-top:8px;margin-top:4px;}
+.fin-cell{text-align:center;}
+.fin-cell .fl{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.3px;}
+.fin-cell .fv{font-size:11px;font-weight:700;}
+.prog-bar-wrap{margin-bottom:6px;}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:2px;}
+.prog-bar{height:4px;background:#eee;border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;display:inline-block;}
+.open-btn{display:block;width:100%;padding:8px;text-align:center;background:#f0f7ff;border:none;border-top:1px solid #e5eef8;color:#378ADD;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;}
+.open-btn:hover{background:#daeeff;}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa;grid-column:1/-1;}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px;}
+/* ── MODALS ──────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;}
+.modal{background:#fff;border-radius:8px;padding:24px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal h2{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a2a4a;}
+.field{margin-bottom:10px;}
+.field label{font-size:11px;color:#666;display:block;margin-bottom:3px;}
+.field input,.field select,.field textarea{width:100%;font-size:12px;padding:5px 8px;border:0.5px solid #bbb;border-radius:4px;background:#fff;color:#222;}
+.field textarea{height:60px;resize:vertical;}
+.modal-footer{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+/* ── PROJECT VIEW ────────────────────────────────────────── */
+#view-project{background:#fff;min-height:100vh;}
+.proj-content{padding:1rem 1.5rem;}
+input[type=date],input[type=text],input[type=url],input[type=number],select{font-size:11px;padding:2px 5px;border:0.5px solid #aaa;border-radius:3px;background:#fff;color:#222;}
+input[type=date]{width:118px;}
+th{font-size:11px;font-weight:600;color:#555;padding:5px 8px;text-align:left;border-bottom:1.5px solid #ccc;white-space:nowrap;background:#f7f7f7;}
+td{padding:3px 7px;border-bottom:0.5px solid #e5e5e5;vertical-align:middle;font-size:11px;}
+tr:hover td{background:#f9fbff;}
+.btn{font-size:11px;padding:4px 10px;border:0.5px solid #aaa;border-radius:4px;background:#fff;color:#222;cursor:pointer;}
+.btn:hover{background:#f0f0f0;}
+.btn-add{font-size:12px;padding:5px 14px;border:none;border-radius:4px;background:#378ADD;color:#fff;cursor:pointer;font-weight:600;}
+.btn-add:hover{background:#2a70c4;}
+.btn-del{font-size:11px;padding:2px 6px;border:0.5px solid #E24B4A;border-radius:3px;background:transparent;color:#E24B4A;cursor:pointer;}
+.btn-del:hover{background:#fce8e8;}
+.btn-edit-row{font-size:11px;padding:2px 6px;border:0.5px solid #378ADD;border-radius:3px;background:transparent;color:#378ADD;cursor:pointer;}
+.btn-edit-row:hover{background:#e6f1fb;}
+.btn-copy-row{font-size:11px;padding:2px 6px;border:0.5px solid #7F77DD;border-radius:3px;background:transparent;color:#7F77DD;cursor:pointer;}
+.btn-copy-row:hover{background:#f0effe;}
+.btn-save{font-size:11px;padding:2px 6px;border:0.5px solid #1D9E75;border-radius:3px;background:#1D9E75;color:#fff;cursor:pointer;}
+.btn-save:hover{background:#167a5c;}
+.btn-xl{font-size:11px;padding:4px 10px;border:0.5px solid #2E7D32;border-radius:4px;background:#2E7D32;color:#fff;cursor:pointer;}
+.btn-xl:hover{background:#1b5e20;}
+.panel{background:#f8f9fa;border:0.5px solid #ddd;border-radius:6px;padding:14px 16px;margin-bottom:1.2rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+.pfield label{font-size:11px;color:#666;display:block;margin-bottom:3px;}
+.pfield input,.pfield select{width:100%;}
+.pfield{margin-bottom:8px;}
+.tooltip{position:fixed;background:#fff;border:1px solid #ccc;border-radius:4px;padding:4px 8px;font-size:11px;pointer-events:none;z-index:9999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.group-sum td{font-weight:600;background:#f5f8ff!important;font-size:11px;border-top:1px solid #ddd;}
+.total-row td{font-weight:700;background:#e8f0ff!important;font-size:12px;border-top:2px solid #378ADD;}
+.link-icon{display:inline-flex;align-items:center;gap:2px;font-size:10px;color:#378ADD;cursor:pointer;padding:1px 4px;border:0.5px solid #c0d8f0;border-radius:3px;background:#f0f7ff;white-space:nowrap;}
+.link-icon:hover{background:#daeeff;}
+.sum-card{border-radius:6px;padding:10px 14px;flex:1;min-width:160px;}
+.sum-card .slabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.sum-card .val{font-size:15px;font-weight:700;}
+#gantt-outer{overflow-x:auto;overflow-y:visible;border:1px solid #e0e0e0;border-radius:4px;padding:8px 4px 12px 4px;background:#fff;}
+.gantt-track{background:#ebebeb;border-radius:3px;position:relative;}
+.toast{position:fixed;bottom:20px;right:20px;background:#1a2a4a;color:#fff;padding:10px 18px;border-radius:6px;font-size:12px;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+@media print{
+  .no-print{display:none!important;}
+  .top-nav{display:none!important;}
+  #view-portfolio{display:none!important;}
+  #view-project{display:block!important;}
+  #gantt-outer{overflow:visible!important;}
+  #gantt-inner{min-width:100%!important;}
+  .gantt-track,.gantt-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sum-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+
+/* ── Date Picker ─────────────────────────────── */
+.dp-wrap{position:relative;display:inline-block;}
+.dp-input{padding-right:24px!important;cursor:pointer!important;caret-color:transparent;}
+.dp-cal{position:fixed;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:9000;width:240px;font-size:12px;user-select:none;}
+.dp-cal-header{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #eee;background:#f8f9fa;border-radius:6px 6px 0 0;}
+.dp-cal-header button{background:none;border:none;cursor:pointer;font-size:16px;color:#555;padding:2px 6px;border-radius:3px;}
+.dp-cal-header button:hover{background:#e8edf5;}
+.dp-cal-month{font-weight:600;color:#1a2a4a;font-size:12px;}
+.dp-cal-grid{padding:6px 8px;}
+.dp-cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:2px;}
+.dp-cal-dow span{text-align:center;font-size:10px;color:#aaa;padding:3px 0;font-weight:600;}
+.dp-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.dp-day{text-align:center;padding:5px 2px;cursor:pointer;border-radius:4px;font-size:11px;color:#333;}
+.dp-day:hover{background:#e8f0fb;color:#1a2a4a;}
+.dp-day.today{border:1px solid #378ADD;color:#378ADD;font-weight:600;}
+.dp-day.selected{background:#378ADD;color:#fff!important;font-weight:600;}
+.dp-day.other-month{color:#ccc;}
+.dp-day.empty{cursor:default;}
+.dp-cal-footer{padding:6px 10px;border-top:1px solid #eee;display:flex;justify-content:space-between;}
+.dp-cal-footer button{font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;}
+.dp-btn-today{background:#f0f7ff;color:#378ADD;border:1px solid #c0d8f0;}
+.dp-btn-clear{background:#fff;color:#888;border:1px solid #ddd;}
+</style>
+</head>
+<body>
+
+<!-- ═══ SHARED NAV ═══════════════════════════════════════════ -->
+<div class="top-nav" id="topNav">
+  <!-- filled by JS -->
+</div>
+
+<!-- ═══ PORTFOLIO VIEW ═══════════════════════════════════════ -->
+<div id="view-portfolio">
+<div class="main">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:10px;">
+    <h1 style="font-size:20px;font-weight:700;color:#1a2a4a;">Projektübersicht</h1>
+    <div style="font-size:11px;color:#aaa;" id="lastSaved"></div>
+  </div>
+  <div class="global-cards" id="globalCards"></div>
+  <div class="filter-bar">
+    <input type="text" id="filterText" placeholder="🔍 Projekt suchen…" oninput="renderProjects()">
+    <select id="filterStatus" onchange="renderProjects()">
+      <option value="">Alle Status</option>
+      <option value="active">Aktiv</option>
+      <option value="completed">Abgeschlossen</option>
+      <option value="planned">Geplant</option>
+    </select>
+    <select id="sortBy" onchange="renderProjects()">
+      <option value="name">Name</option>
+      <option value="created">Erstellt</option>
+      <option value="start">Start</option>
+      <option value="potential">Potential</option>
+    </select>
+    <span style="font-size:11px;color:#888;" id="projCount"></span>
+  </div>
+  <div class="proj-grid" id="projGrid"></div>
+</div>
+</div>
+
+<!-- ═══ PROJECT VIEW ════════════════════════════════════════ -->
+<div id="view-project">
+<div class="proj-content">
+
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:0.5rem;flex-wrap:wrap;">
+  <div style="font-size:18px;font-weight:700;" id="pv-title">Projekt</div>
+  <button class="btn no-print" style="font-size:11px;padding:2px 7px;" onclick="editProjectLink()">🔗 Link</button>
+  <span id="pv-linkDisplay"></span>
+</div>
+
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1.2rem;padding:8px 12px;background:#f8f9fa;border-radius:5px;border:0.5px solid #ddd;">
+  <span style="font-size:12px;color:#666;font-weight:500;">Projektzeitraum:</span>
+  <div class="dp-wrap" id="dp-wrap-pStart" style="display:inline-block;position:relative;"><input type="text" id="pStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('pStart')"><span onclick="dpOpen('pStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div>
+  <span style="font-size:12px;color:#666;">bis</span>
+  <div class="dp-wrap" id="dp-wrap-pEnd" style="display:inline-block;position:relative;"><input type="text" id="pEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('pEnd')"><span onclick="dpOpen('pEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div>
+  <span style="font-size:12px;color:#666;font-weight:500;margin-left:12px;">Skalierung:</span>
+  <select id="scaleMode" onchange="buildGantt()" style="width:90px;">
+    <option value="month">Monat</option><option value="week">Woche</option>
+    <option value="quarter">Quartal</option><option value="year">Jahr</option>
+  </select>
+  <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#666;margin-left:8px;">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="#EF9F27" stroke="#BA7517" stroke-width="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>Vergabe
+  </span>
+  <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#666;">
+    <span style="display:inline-block;width:2px;height:12px;background:#E24B4A;border-radius:1px;"></span>Heute
+  </span>
+  <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#666;margin-left:6px;">
+    <span style="display:inline-block;width:20px;height:10px;border-radius:2px;background:#378ADD;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0,rgba(255,255,255,.5) 3px,transparent 3px,transparent 8px);border:1px solid #378ADD;"></span>Planung
+    <span style="display:inline-block;width:20px;height:10px;border-radius:2px;background:#378ADD;border:1px solid #378ADD;margin-left:4px;"></span>Ausführung
+  </span>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;" class="no-print">
+  <button class="btn-add" onclick="toggleProjPanel('addPanel')">+ Eintrag hinzufügen</button>
+  <button class="btn" onclick="toggleProjPanel('copyPanel')">⧉ Gewerk kopieren</button>
+  <button class="btn" onclick="toggleProjPanel('renamePanel')">✏️ Gewerk umbenennen</button>
+  <button class="btn-xl" onclick="exportXlsx()">📊 Excel (.xlsx)</button>
+  <button class="btn" onclick="exportProjJson()">💾 JSON Backup</button>
+  <button class="btn" onclick="showProjImport()">📂 Import</button>
+  <button class="btn no-print" onclick="window.print()">🖨️ Drucken</button>
+</div>
+
+<!-- ADD PANEL -->
+<div class="panel no-print" id="addPanel" style="display:none;">
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Neuen Eintrag hinzufügen</div>
+  <div class="grid3">
+    <div class="pfield"><label>Gewerk</label>
+      <select id="nGewerk" onchange="onGewerkSel('n')" style="width:100%;margin-bottom:5px;"></select>
+      <input type="text" id="nGewerkNew" placeholder="Neues Gewerk…" style="width:100%;display:none;">
+    </div>
+    <div class="pfield"><label>Gewerk-Link</label><input type="url" id="nGewerkLink" placeholder="https://…"></div>
+    <div class="pfield"><label>Anwendung / SFDC-Link</label><input type="text" id="nArt" placeholder="z.B. Equipment fastening"></div>
+  </div>
+  <div class="grid3">
+    <div class="pfield"><label>Anwendungs-Link</label><input type="url" id="nArtLink" placeholder="https://…"></div>
+    <div class="pfield"><label>Typ</label>
+      <select id="nTyp" onchange="onTypChange('n')" style="width:100%;"><option value="Planung">Planung</option><option value="Ausfuehrung">Ausführung</option></select>
+    </div>
+    <div class="pfield"><label>Priorität</label>
+      <select id="nPrio" onchange="styleSelect(this,'prio')"><option>Highest</option><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="pfield"><label>Lead Status</label>
+      <select id="nLS" onchange="styleSelect(this,'ls')"><option value="">–</option><option>Offen</option><option>In Bearbeitung</option><option>Gewonnen</option><option>Verloren</option></select>
+    </div>
+    <div class="pfield"><label>Start</label><div class="dp-wrap" id="dp-wrap-nStart" style="display:inline-block;position:relative;"><input type="text" id="nStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('nStart')"><span onclick="dpOpen('nStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="pfield"><label>Ende</label><div class="dp-wrap" id="dp-wrap-nEnd" style="display:inline-block;position:relative;"><input type="text" id="nEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('nEnd')"><span onclick="dpOpen('nEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="pfield"><label>⭐ Vergabe</label><div class="dp-wrap" id="dp-wrap-nMile" style="display:inline-block;position:relative;"><input type="text" id="nMile" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('nMile')"><span onclick="dpOpen('nMile')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+  </div>
+  <div class="grid2">
+    <div class="pfield" id="nSFField"><label>Spezifikation (€)</label><input type="text" id="nSF" placeholder="0,00"></div>
+    <div class="pfield" id="nUFField" style="display:none;"><label>Potential / Umsatz (€)</label><input type="text" id="nUF" placeholder="0,00"></div>
+    <div class="pfield"><label>Projektziel</label><input type="text" id="nPZ" placeholder="Eintragen…"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button class="btn-add" onclick="addRow()">Hinzufügen</button>
+    <button class="btn" onclick="toggleProjPanel('addPanel')">Abbrechen</button>
+  </div>
+  <div id="addErr" style="color:#E24B4A;font-size:11px;margin-top:6px;display:none;"></div>
+</div>
+
+<!-- EDIT PANEL -->
+<div class="panel no-print" id="editPanel" style="display:none;border-color:#378ADD;">
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#378ADD;">Eintrag bearbeiten</div>
+  <div class="grid3">
+    <div class="pfield"><label>Gewerk</label>
+      <select id="eGewerk" onchange="onGewerkSel('e')" style="width:100%;margin-bottom:5px;"></select>
+      <input type="text" id="eGewerkNew" placeholder="Neues Gewerk…" style="width:100%;display:none;">
+    </div>
+    <div class="pfield"><label>Gewerk-Link</label><input type="url" id="eGewerkLink" placeholder="https://…"></div>
+    <div class="pfield"><label>Anwendung / SFDC-Link</label><input type="text" id="eArt"></div>
+  </div>
+  <div class="grid3">
+    <div class="pfield"><label>Anwendungs-Link</label><input type="url" id="eArtLink" placeholder="https://…"></div>
+    <div class="pfield"><label>Typ</label>
+      <select id="eTyp" onchange="onTypChange('e')" style="width:100%;"><option value="Planung">Planung</option><option value="Ausfuehrung">Ausführung</option></select>
+    </div>
+    <div class="pfield"><label>Priorität</label>
+      <select id="ePrio" onchange="styleSelect(this,'prio')"><option>Highest</option><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="pfield"><label>Lead Status</label>
+      <select id="eLS" onchange="styleSelect(this,'ls')"><option value="">–</option><option>Offen</option><option>In Bearbeitung</option><option>Gewonnen</option><option>Verloren</option></select>
+    </div>
+    <div class="pfield"><label>Start</label><div class="dp-wrap" id="dp-wrap-eStart" style="display:inline-block;position:relative;"><input type="text" id="eStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('eStart')"><span onclick="dpOpen('eStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="pfield"><label>Ende</label><div class="dp-wrap" id="dp-wrap-eEnd" style="display:inline-block;position:relative;"><input type="text" id="eEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('eEnd')"><span onclick="dpOpen('eEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="pfield"><label>⭐ Vergabe</label><div class="dp-wrap" id="dp-wrap-eMile" style="display:inline-block;position:relative;"><input type="text" id="eMile" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('eMile')"><span onclick="dpOpen('eMile')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+  </div>
+  <div class="grid2">
+    <div class="pfield" id="eSFField"><label>Spezifikation (€)</label><input type="text" id="eSF"></div>
+    <div class="pfield" id="eUFField" style="display:none;"><label>Potential / Umsatz (€)</label><input type="text" id="eUF"></div>
+    <div class="pfield"><label>Projektziel</label><input type="text" id="ePZ"></div>
+  </div>
+  <input type="hidden" id="editIdx">
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button class="btn-save" onclick="saveEdit()">Speichern</button>
+    <button class="btn" onclick="cancelEdit()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- COPY PANEL -->
+<div class="panel no-print" id="copyPanel" style="display:none;border-color:#7F77DD;">
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#7F77DD;">Gewerk oder Anwendung kopieren</div>
+  <div class="grid2">
+    <div class="pfield"><label>Quelle – Gewerk</label><select id="cpSrcGewerk" onchange="fillCopyAnw()"></select></div>
+    <div class="pfield"><label>Anwendung (leer = ganzes Gewerk)</label><select id="cpSrcAnw"><option value="">– Ganzes Gewerk kopieren –</option></select></div>
+  </div>
+  <div class="grid2">
+    <div class="pfield"><label>Ziel-Gewerk</label>
+      <select id="cpDstGewerk" onchange="onCpDstSel()" style="margin-bottom:5px;"></select>
+      <input type="text" id="cpDstNew" placeholder="Neues Gewerk…" style="display:none;">
+    </div>
+    <div class="pfield"><label>Datums-Offset (Tage)</label><input type="number" id="cpOffset" value="0"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button class="btn-add" style="background:#7F77DD;" onclick="doCopy()">Kopieren</button>
+    <button class="btn" onclick="toggleProjPanel('copyPanel')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- RENAME PANEL -->
+<div class="panel no-print" id="renamePanel" style="display:none;border-color:#BA7517;">
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#BA7517;">Gewerk umbenennen</div>
+  <div class="grid2">
+    <div class="pfield"><label>Gewerk wählen</label><select id="rnGewerk" style="width:100%;"></select></div>
+    <div class="pfield"><label>Neuer Name</label><input type="text" id="rnNewName" placeholder="Neuer Gewerk-Name…" style="width:100%;"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button class="btn-add" style="background:#BA7517;" onclick="doRenameGewerk()">Umbenennen</button>
+    <button class="btn" onclick="toggleProjPanel('renamePanel')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div style="font-size:14px;font-weight:600;margin-bottom:8px;">Einträge</div>
+<div style="overflow-x:auto;margin-bottom:1.5rem;">
+<table id="maintbl" style="border-collapse:collapse;min-width:1200px;width:100%;">
+<thead><tr>
+  <th style="min-width:110px;">Gewerk</th>
+  <th style="min-width:150px;">Anwendung / SFDC-Link</th>
+  <th style="min-width:90px;">Typ</th>
+  <th style="min-width:100px;">Priorität</th>
+  <th style="min-width:118px;">Start</th>
+  <th style="min-width:118px;">Ende</th>
+  <th style="min-width:118px;">⭐ Vergabe</th>
+  <th style="min-width:95px;">Projektziel</th>
+  <th style="min-width:120px;">Lead Status</th>
+  <th style="min-width:115px;">Spezifikation</th>
+  <th style="min-width:115px;">Potential / Umsatz</th>
+  <th class="no-print" style="min-width:80px;text-align:center;">Aktionen</th>
+</tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div style="font-size:14px;font-weight:600;margin-bottom:8px;">Zusammenfassung</div>
+<div id="sumCards" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;"></div>
+
+<div style="font-size:14px;font-weight:600;margin-bottom:6px;">Zeitplan
+  <span class="no-print" style="font-size:11px;font-weight:400;color:#888;"> — Balken & Stern ziehbar | Schraffur = Planung</span>
+</div>
+<div id="gantt-outer"><div id="gantt-inner" style="min-width:800px;"></div></div>
+
+</div><!-- /proj-content -->
+</div><!-- /view-project -->
+
+<!-- MODALS (shared) -->
+<div class="modal-bg" id="projModalBg" style="display:none;" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <h2 id="modalTitle">Neues Projekt</h2>
+  <div class="grid2">
+    <div class="field"><label>Projektname *</label><input type="text" id="mName" placeholder="z.B. OMV Wasserstoff"></div>
+    <div class="field"><label>Kunde / Auftraggeber</label><input type="text" id="mClient" placeholder="z.B. OMV AG"></div>
+  </div>
+  <div class="field"><label>Beschreibung</label><textarea id="mDesc" placeholder="Kurze Beschreibung…"></textarea></div>
+  <div class="grid2">
+    <div class="field"><label>Projektnummer</label><input type="text" id="mId" placeholder="PRJ-2026-001"></div>
+    <div class="field"><label>Standort / Region</label><input type="text" id="mLocation" placeholder="z.B. Wien"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Start</label><div class="dp-wrap" id="dp-wrap-mStart" style="display:inline-block;position:relative;"><input type="hidden" id="mStart-iso"><input type="text" id="mStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('mStart')"><span onclick="dpOpen('mStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="field"><label>Ende (geplant)</label><div class="dp-wrap" id="dp-wrap-mEnd" style="display:inline-block;position:relative;"><input type="hidden" id="mEnd-iso"><input type="text" id="mEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('mEnd')"><span onclick="dpOpen('mEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Status</label>
+      <select id="mStatus"><option value="planned">Geplant</option><option value="active">Aktiv</option><option value="completed">Abgeschlossen</option></select>
+    </div>
+    <div class="field"><label>Projektfarbe</label>
+      <select id="mColor">
+        <option value="#378ADD">Blau</option><option value="#1D9E75">Grün</option><option value="#D85A30">Orange</option>
+        <option value="#7F77DD">Violett</option><option value="#BA7517">Braun</option><option value="#D4537E">Pink</option>
+        <option value="#1a2a4a">Dunkelblau</option><option value="#639922">Olivgrün</option>
+      </select>
+    </div>
+  </div>
+  <div class="field"><label>Externer Link (URL)</label><input type="url" id="mLink" placeholder="https://…"></div>
+  <input type="hidden" id="mEditId">
+  <div class="modal-footer">
+    <button class="btn" onclick="closeModal()">Abbrechen</button>
+    <button class="btn btn-primary" onclick="saveProject()">Speichern</button>
+    <style>.btn-primary{background:#378ADD;border-color:#378ADD;color:#fff;}.btn-primary:hover{background:#2a70c4;}</style>
+  </div>
+</div>
+</div>
+
+<div class="modal-bg" id="importBg" style="display:none;" onclick="if(event.target===this)closeImport()">
+<div class="modal">
+  <input type="hidden" id="importMode" value="portfolio">
+  <h2 id="importTitle">Backup importieren</h2>
+  <p id="importDesc" style="font-size:11px;color:#888;margin-bottom:12px;line-height:1.5;">Wählen Sie eine Backup-Datei aus.</p>
+  <div class="field">
+    <label>JSON-Backup-Datei (.json)</label>
+    <input type="file" id="importFile" accept=".json" style="width:100%;font-size:12px;padding:4px;">
+  </div>
+  <div id="importMerge" style="margin-bottom:10px;">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#555;cursor:pointer;">
+      <input type="checkbox" id="importMergeCheck" style="width:auto;">
+      <span>Zusammenführen (bestehende Projekte behalten, neue hinzufügen)</span>
+    </label>
+    <p style="font-size:10px;color:#aaa;margin-top:4px;padding-left:22px;">Ohne Häkchen: vorhandene Daten werden vollständig ersetzt.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" onclick="closeImport()">Abbrechen</button>
+    <button class="btn btn-primary" onclick="doImport()">Importieren</button>
+  </div>
+</div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ---
+//  CONSTANTS & STATE
+// ---
+var PORT_KEY="omv_portfolio_v1";
+var PROJ_KEY="omv_gantt_proj_";
+
+// --- Supabase Cloud Sync ---
+var SB_URL="https://yedvwtwzczanprnbddzl.supabase.co";
+var SB_KEY="sb_publishable_KOtvPBY99mzQ-GA5qzoe9A_vd4Pktqo";
+var SB_TABLE="app_storage";
+var sbSyncing=false;
+
+// Low-level Supabase REST calls (no SDK needed)
+function sbGet(key,cb){
+  fetch(SB_URL+"/rest/v1/"+SB_TABLE+"?key=eq."+encodeURIComponent(key)+"&select=value",{
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"}
+  }).then(function(r){return r.json();}).then(function(rows){
+    cb(null,rows&&rows.length?rows[0].value:null);
+  }).catch(function(e){cb(e,null);});
+}
+function sbSet(key,value,cb){
+  fetch(SB_URL+"/rest/v1/"+SB_TABLE,{
+    method:"POST",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json",
+      "Prefer":"resolution=merge-duplicates"},
+    body:JSON.stringify({key:key,value:value})
+  }).then(function(r){if(r.ok){if(cb)cb(null);}else{r.text().then(function(t){if(cb)cb(new Error(t));});}})
+  .catch(function(e){if(cb)cb(e);});
+}
+function sbDelete(key,cb){
+  fetch(SB_URL+"/rest/v1/"+SB_TABLE+"?key=eq."+encodeURIComponent(key),{
+    method:"DELETE",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}
+  }).then(function(){if(cb)cb(null);}).catch(function(e){if(cb)cb(e);});
+}
+function sbGetAll(prefix,cb){
+  fetch(SB_URL+"/rest/v1/"+SB_TABLE+"?key=like."+encodeURIComponent(prefix+"%")+"&select=key,value",{
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){cb(null,rows||[]);})
+  .catch(function(e){cb(e,[]);});
+}
+
+function setSyncStatus(state,msg){
+  var el=document.getElementById("syncStatus");
+  if(!el)return;
+  var icons={ok:"☁️",syncing:"⟳",error:"⚠️",offline:"💾"};
+  el.textContent=(icons[state]||"")+" "+(msg||"");
+  el.style.color=state==="error"?"#E24B4A":state==="syncing"?"#EF9F27":state==="offline"?"#888":"#1D9E75";
+}
+var GC=["#378ADD","#1D9E75","#D85A30","#7F77DD","#BA7517","#D4537E","#639922","#185FA5"];
+var gcMap={},gcIdx=0;
+function gc(g){if(!gcMap[g]){gcMap[g]=GC[gcIdx%GC.length];gcIdx++;}return gcMap[g];}
+
+var portfolio=loadPortfolio();
+var currentProjId=null; // which project is open
+var rows=[], projLink="", drag=null;
+var LW=158,ROW_H=22,GAP=4;
+
+// ---
+//  ROUTING  (portfolio <-> project)
+// ---
+function showPortfolio(){
+  currentProjId=null;
+  document.getElementById("view-portfolio").style.display="block";
+  document.getElementById("view-project").style.display="none";
+  renderNav();
+  renderProjects();
+}
+function showProject(id){
+  currentProjId=id;
+  document.getElementById("view-portfolio").style.display="none";
+  document.getElementById("view-project").style.display="block";
+  gcMap={};gcIdx=0; // reset colors per project
+  loadProjData(id);
+  renderNav();
+  buildTable();buildSumCards();buildGantt();
+  var meta=getProjMeta(id);
+  document.getElementById("pv-title").textContent=meta?meta.name:"Projekt";
+  document.getElementById("pv-title").style.color=meta?(meta.color||"#1a2a4a"):"#1a2a4a";
+  renderProjectLink();
+  // Close any open panels
+  ["addPanel","editPanel","copyPanel","renamePanel"].forEach(function(x){document.getElementById(x).style.display="none";});
+  window.scrollTo(0,0);
+}
+function renderNav(){
+  var meta=currentProjId?getProjMeta(currentProjId):null;
+  var html='<span class="logo" onclick="showPortfolio()"><span>📊</span> Projektportfolio</span>';
+  if(meta){
+    html+='<span class="sep">/</span>';
+    html+='<div class="nav-dot" style="background:'+(meta.color||"#378ADD")+'"></div>';
+    html+='<span class="proj-crumb">'+meta.name+'</span>';
+  }
+  html+='<div class="top-nav-right">';
+  html+='<span id="syncStatus" style="font-size:11px;color:#1D9E75;margin-right:6px;"></span>';
+  if(!meta){html+='<button class="nav-btn" onclick="loadFromCloud()" title="Neu laden">↻ Sync</button>';}
+  if(meta){
+    html+='<span class="save-ind" id="saveInd">✓ Gespeichert</span>';
+  }
+  if(!meta){
+    html+='<button class="nav-btn" onclick="exportAllJson()">💾 Portfolio-Backup</button>';
+    html+='<button class="nav-btn" onclick="showImport()">📂 Portfolio-Import</button>';
+    html+='<button class="nav-btn" onclick="showProjImport()">📥 Projekt-Import</button>';
+    html+='<button class="nav-btn primary" onclick="showNewProject()">+ Neues Projekt</button>';
+  }else{
+    html+='<button class="nav-btn" onclick="exportProjJson()">💾 Backup</button>';
+    html+='<button class="nav-btn" onclick="showProjImport()">📂 Import</button>';
+    html+='<button class="nav-btn" onclick="showPortfolio()"><- Zur Uebersicht</button>';
+  }
+  html+='</div>';
+  document.getElementById("topNav").innerHTML=html;
+}
+
+// ---
+//  PORTFOLIO STORAGE
+// ---
+function loadPortfolio(){
+  try{var r=localStorage.getItem(PORT_KEY);if(r)return JSON.parse(r);}catch(e){}
+  return{projects:[]};
+}
+function savePortfolio(){
+  localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+  var el=document.getElementById("lastSaved");
+  if(el)el.textContent="Gespeichert: "+new Date().toLocaleTimeString("de-AT");
+  // Sync to cloud
+  setSyncStatus("syncing","Synchronisiere...");
+  sbSet(PORT_KEY,portfolio,function(err){
+    if(err){setSyncStatus("error","Cloud-Fehler: "+err.message);}
+    else{setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));}
+  });
+}
+function getProjMeta(id){return portfolio.projects.find(function(x){return x.id===id;})||null;}
+function getProjData(id){
+  try{var r=localStorage.getItem(PROJ_KEY+id);if(r)return JSON.parse(r);}catch(e){}
+  return null;
+}
+// Async version for cloud sync
+function getProjDataAsync(id,cb){
+  var local=getProjData(id);
+  if(local){cb(local);} // return local immediately
+  sbGet(PROJ_KEY+id,function(err,cloudVal){
+    if(!err&&cloudVal){
+      localStorage.setItem(PROJ_KEY+id,JSON.stringify(cloudVal));
+      cb(cloudVal);
+    }
+  });
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+// ---
+//  PROJECT STORAGE (gantt data)
+// ---
+function saveProjData(){
+  if(!currentProjId)return;
+  try{
+    var ps=dpGetISO("pStart");
+    var pe=dpGetISO("pEnd");
+    var scale=document.getElementById("scaleMode").value;
+    var projPayload={rows:rows,projectLink:projLink,pStart:ps,pEnd:pe,scale:scale};
+    localStorage.setItem(PROJ_KEY+currentProjId,JSON.stringify(projPayload));
+    // Sync project data to cloud
+    setSyncStatus("syncing","Synchronisiere...");
+    sbSet(PROJ_KEY+currentProjId,projPayload,function(err){
+      if(err){setSyncStatus("error","Cloud-Fehler");}
+      else{setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));}
+    });
+    // Always sync dates + data back to portfolio meta
+    var idx=portfolio.projects.findIndex(function(x){return x.id===currentProjId;});
+    if(idx>=0){
+      if(ps)portfolio.projects[idx].start=ps;
+      if(pe)portfolio.projects[idx].end=pe;
+      savePortfolio();
+    }
+    var ind=document.getElementById("saveInd");
+    if(ind){ind.style.display="inline";clearTimeout(ind._t);ind._t=setTimeout(function(){ind.style.display="none";},2000);}
+  }catch(e){console.error("saveProjData:",e);}
+}
+function loadProjData(id){
+  // First load local cache, then refresh from cloud in background
+  var d=getProjData(id);
+  rows=[];projLink="";
+  if(d){
+    rows=d.rows||[];projLink=d.projectLink||"";
+    var meta=getProjMeta(id);
+    var ps=d.pStart||(meta?meta.start:"");
+    var pe=d.pEnd||(meta?meta.end:"");
+    dpSet("pStart",ps||"");
+    dpSet("pEnd",pe||"");
+    if(d.scale)document.getElementById("scaleMode").value=d.scale;
+    rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
+  }else{
+    var meta2=getProjMeta(id);
+    dpSet("pStart",meta2?meta2.start||"":"");
+    dpSet("pEnd",meta2?meta2.end||"":"");
+  }
+  // Background refresh from cloud
+  sbGet(PROJ_KEY+id,function(err,cloudData){
+    if(!err&&cloudData&&currentProjId===id){
+      localStorage.setItem(PROJ_KEY+id,JSON.stringify(cloudData));
+      // Reload if cloud data is newer (check row count or a timestamp)
+      var localRows=(d?d.rows||[]:rows).length;
+      var cloudRows=(cloudData.rows||[]).length;
+      if(cloudRows!==localRows||JSON.stringify(cloudData)!==JSON.stringify(d)){
+        rows=cloudData.rows||[];projLink=cloudData.projectLink||"";
+        var ps=cloudData.pStart||"",pe=cloudData.pEnd||"";
+        if(ps)dpSet("pStart",ps);if(pe)dpSet("pEnd",pe);
+        if(cloudData.scale)document.getElementById("scaleMode").value=cloudData.scale;
+        rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
+        buildTable();buildSumCards();buildGantt();
+        setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
+      }
+    }
+  });
+}
+
+// ---
+//  HELPERS
+// ---
+function toD(iso){if(!iso)return null;var p=iso.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+function toISO(d){var y=d.getFullYear(),mo=d.getMonth()+1,da=d.getDate();return y+"-"+(mo<10?"0"+mo:mo)+"-"+(da<10?"0"+da:da);}
+function isoToDisp(s){
+  // Convert YYYY-MM-DD -> TT.MM.JJJJ for display
+  if(!s)return"";
+  s=String(s).trim();
+  var p=s.split("-");
+  if(p.length===3&&p[0].length===4)return p[2]+"."+p[1]+"."+p[0];
+  return s; // return as-is if not ISO format
+}
+function dispToIso(s){
+  // Convert TT.MM.JJJJ -> YYYY-MM-DD for storage
+  if(!s)return"";
+  s=String(s).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s; // already ISO
+  var p=s.split(".");
+  if(p.length!==3)return"";
+  var d=p[0].padStart(2,"0"),m=p[1].padStart(2,"0"),y=p[2];
+  if(y.length===2)y="20"+y;
+  if(y.length!==4||isNaN(Number(y))||isNaN(Number(m))||isNaN(Number(d)))return"";
+  return y+"-"+m+"-"+d;
+}
+function weekNum(d){var j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/86400000+j.getDay()+1)/7);}
+function parseEur(v){return parseFloat((v+"").replace(/\./g,"").replace(",",".").replace(/[^0-9\-\.]/g,""))||0;}
+function fmtEur(v){if(v===""||v===null||v===undefined)return"";return parseEur(v).toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})+" \u20AC";}
+function fmtEurRaw(v){return parseEur(v)||0;}
+function fmtEurK(v){if(!v||isNaN(v))return"0 \u20AC";if(Math.abs(v)>=1e6)return(v/1e6).toFixed(2).replace(".",",")+" M\u20AC";if(Math.abs(v)>=1000)return(v/1000).toFixed(1).replace(".",",")+" k\u20AC";return v.toFixed(2).replace(".",",")+" \u20AC";}
+
+function prioStyle(p){
+  if(p==="Highest")return{bg:"#fce8e8",col:"#a32d2d",b:"#e24b4a"};
+  if(p==="High")   return{bg:"#faeeda",col:"#854f0b",b:"#EF9F27"};
+  if(p==="Medium") return{bg:"#fff9db",col:"#7a6200",b:"#d4b800"};
+  return{bg:"#e8f4e8",col:"#3b6d11",b:"#639922"};
+}
+function lsStyle(v){
+  if(v==="Offen")          return{bg:"#e8e8e8",col:"#444",b:"#aaa"};
+  if(v==="In Bearbeitung") return{bg:"#faeeda",col:"#854f0b",b:"#EF9F27"};
+  if(v==="Gewonnen")       return{bg:"#e8f4e8",col:"#3b6d11",b:"#639922"};
+  if(v==="Verloren")       return{bg:"#fce8e8",col:"#a32d2d",b:"#e24b4a"};
+  return{bg:"#fff",col:"#222",b:"#aaa"};
+}
+function styleSelect(sel,type){var st=type==="prio"?prioStyle(sel.value):lsStyle(sel.value);sel.style.background=st.bg;sel.style.color=st.col;sel.style.borderColor=st.b;}
+function onTypChange(pfx){var v=document.getElementById(pfx+"Typ").value,isPl=v==="Planung";document.getElementById(pfx+"SFField").style.display=isPl?"":"none";document.getElementById(pfx+"UFField").style.display=isPl?"none":"";}
+
+function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(function(){t.style.display="none";},2500);}
+
+// ---
+//  PORTFOLIO RENDER
+// ---
+function calcProjSums(id){
+  var d=getProjData(id);
+  var t={potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0,rows:0,gewonnen:0,offen:0,verloren:0,bearbeitung:0};
+  if(!d||!d.rows)return t;
+  t.rows=d.rows.length;
+  d.rows.forEach(function(r){
+    var sf=parseEur(r.sf),uf=parseEur(r.uf),ls=r.ls;
+    var dest=ls==="Gewonnen"?"ums":ls==="Verloren"?"ent":"pot";
+    t[dest+"SF"]+=sf;t[dest+"UF"]+=uf;
+    if(ls==="Gewonnen")t.gewonnen++;else if(ls==="Verloren")t.verloren++;
+    else if(ls==="In Bearbeitung")t.bearbeitung++;else t.offen++;
+  });
+  return t;
+}
+function getGroups(id){
+  var d=getProjData(id);if(!d||!d.rows)return[];
+  var seen={},gs=[];d.rows.forEach(function(r){if(!seen[r.g]){seen[r.g]=1;gs.push(r.g);}});return gs;
+}
+function statusLabel(s){
+  if(s==="active")return{label:"Aktiv",bg:"#e8f4e8",col:"#2a6010"};
+  if(s==="completed")return{label:"Abgeschlossen",bg:"#e8e8e8",col:"#444"};
+  return{label:"Geplant",bg:"#e8f0ff",col:"#1a3a8a"};
+}
+function buildMiniGantt(proj){
+  var d=getProjData(proj.id);
+  var startDate=(d&&d.pStart)?d.pStart:proj.start;
+  var endDate=(d&&d.pEnd)?d.pEnd:proj.end;
+  if(!d||!d.rows||!startDate||!endDate)return'<div class="mini-gantt"></div>';
+  var ps=new Date(startDate),pe=new Date(endDate),total=pe-ps;
+  if(total<=0)return'<div class="mini-gantt"></div>';
+  var gcM={},gcI=0;function gcol(g){if(!gcM[g]){gcM[g]=GC[gcI%GC.length];gcI++;}return gcM[g];}
+  var html='<div class="mini-gantt">';
+  var today=new Date();today.setHours(0,0,0,0);var tp=(today-ps)/total*100;
+  if(tp>=0&&tp<=100)html+='<div style="position:absolute;left:'+tp.toFixed(1)+'%;top:0;bottom:0;width:1px;background:#E24B4A;z-index:5;"></div>';
+  d.rows.forEach(function(r){
+    if(!r.s||!r.e)return;
+    var rs=new Date(r.s),re=new Date(r.e);
+    var lft=Math.max(0,(rs-ps)/total*100),rgt=Math.min(100,(re-ps)/total*100);
+    if(rgt>lft){var c=gcol(r.g),hatch=r.typ==="Planung"?"background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0,rgba(255,255,255,.5) 2px,transparent 2px,transparent 6px);":"";
+      html+='<div class="mini-bar" style="left:'+lft.toFixed(2)+'%;width:'+(rgt-lft).toFixed(2)+'%;background:'+c+';'+hatch+'"></div>';}
+  });
+  return html+'</div>';
+}
+
+function buildGlobalCards(){
+  var total=portfolio.projects.length;
+  var active=portfolio.projects.filter(function(p){return p.status==="active";}).length;
+  var planned=portfolio.projects.filter(function(p){return p.status==="planned";}).length;
+  var completed=portfolio.projects.filter(function(p){return p.status==="completed";}).length;
+  var agg={potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0};
+  portfolio.projects.forEach(function(p){
+    var s=calcProjSums(p.id);
+    agg.potSF+=s.potSF;agg.potUF+=s.potUF;
+    agg.umsSF+=s.umsSF;agg.umsUF+=s.umsUF;
+    agg.entSF+=s.entSF;agg.entUF+=s.entUF;
+  });
+  function splitRow(sfv,ufv,col){
+    return'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">'
+      +'<div><div style="font-size:9px;color:'+col+';opacity:.65;margin-bottom:2px;">Spezifikation</div>'
+      +'<div style="font-size:13px;font-weight:700;color:'+col+';">'+fmtEurK(sfv)+'</div></div>'
+      +'<div><div style="font-size:9px;color:'+col+';opacity:.65;margin-bottom:2px;">Potential / Umsatz</div>'
+      +'<div style="font-size:13px;font-weight:700;color:'+col+';">'+fmtEurK(ufv)+'</div></div>'
+      +'</div>';
+  }
+  var html='';
+  html+='<div class="gcard" style="min-width:130px;">'
+    +'<div class="gc-label">Projekte gesamt</div>'
+    +'<div class="gc-val">'+total+'</div>'
+    +'<div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;">'
+    +'<div style="font-size:10px;color:#888;display:flex;justify-content:space-between;"><span>Aktiv</span><span style="font-weight:700;color:#2a6010;">'+active+'</span></div>'
+    +'<div style="font-size:10px;color:#888;display:flex;justify-content:space-between;"><span>Geplant</span><span style="font-weight:700;color:#1a3a8a;">'+planned+'</span></div>'
+    +'<div style="font-size:10px;color:#888;display:flex;justify-content:space-between;"><span>Abgeschlossen</span><span style="font-weight:700;color:#555;">'+completed+'</span></div>'
+    +'</div></div>';
+  html+='<div class="gcard blue" style="min-width:210px;">'
+    +'<div class="gc-label" style="color:#1a3a8a;">Potential</div>'
+    +'<div style="font-size:10px;color:#1a3a8a;opacity:.7;margin-bottom:8px;">Status: -, Offen, In Bearbeitung</div>'
+    +splitRow(agg.potSF,agg.potUF,"#1a3a8a")
+    +'</div>';
+  html+='<div class="gcard green" style="min-width:210px;">'
+    +'<div class="gc-label" style="color:#2a6010;">Umsatz</div>'
+    +'<div style="font-size:10px;color:#2a6010;opacity:.7;margin-bottom:8px;">Status: Gewonnen</div>'
+    +splitRow(agg.umsSF,agg.umsUF,"#2a6010")
+    +'</div>';
+  html+='<div class="gcard red" style="min-width:210px;">'
+    +'<div class="gc-label" style="color:#7a1a1a;">Entgangener Umsatz</div>'
+    +'<div style="font-size:10px;color:#7a1a1a;opacity:.7;margin-bottom:8px;">Status: Verloren</div>'
+    +splitRow(agg.entSF,agg.entUF,"#7a1a1a")
+    +'</div>';
+  html+='<div class="gcard" style="min-width:210px;background:#f4f6fa;border-color:#c8cfdc;">'
+    +'<div class="gc-label">Gesamt Aktiv</div>'
+    +'<div style="font-size:10px;color:#555;opacity:.8;margin-bottom:8px;">Potential + Umsatz (ohne Verloren)</div>'
+    +splitRow(agg.potSF+agg.umsSF,agg.potUF+agg.umsUF,"#333")
+    +'</div>';
+  document.getElementById("globalCards").innerHTML=html;
+}
+
+function renderProjects(){
+  var ft=(document.getElementById("filterText").value||"").toLowerCase();
+  var fs=document.getElementById("filterStatus").value;
+  var sb=document.getElementById("sortBy").value;
+  var list=portfolio.projects.filter(function(p){
+    if(ft&&p.name.toLowerCase().indexOf(ft)<0&&(p.client||"").toLowerCase().indexOf(ft)<0)return false;
+    if(fs&&p.status!==fs)return false;return true;
+  });
+  list.sort(function(a,b){
+    if(sb==="name")return a.name.localeCompare(b.name);
+    if(sb==="created")return(b.created||0)-(a.created||0);
+    if(sb==="start")return(a.start||"").localeCompare(b.start||"");
+    if(sb==="potential"){var sa=calcProjSums(a.id),sb2=calcProjSums(b.id);return sb2.potUF-sa.potUF;}
+    return 0;
+  });
+  document.getElementById("projCount").textContent=list.length+" Projekt"+(list.length!==1?"e":"");
+  buildGlobalCards();
+  if(list.length===0){
+    document.getElementById("projGrid").innerHTML='<div class="empty-state"><div class="es-icon">📋</div><p>Keine Projekte gefunden.<br>Klicke oben auf "+ Neues Projekt".</p></div>';
+    return;
+  }
+  var html="";
+  list.forEach(function(p){
+    var pd=getProjData(p.id);
+    var sums=calcProjSums(p.id),sl=statusLabel(p.status),groups=getGroups(p.id);
+    var gwon=sums.gewonnen,gopen=sums.offen+sums.bearbeitung,glost=sums.verloren,tot=sums.rows||1;
+    html+='<div class="proj-card">';
+    html+='<div class="proj-card-header">';
+    html+='<div class="proj-color-dot" style="background:'+p.color+'"></div>';
+    html+='<div class="proj-name" style="cursor:pointer;" onclick="showProject(\''+p.id+'\')">'+p.name+(p.projId?'<br><span style="font-size:10px;color:#aaa;font-weight:400;">'+p.projId+'</span>':'')+'</div>';
+    html+='<div class="proj-actions">';
+    html+='<button class="ic-btn" title="Oeffnen" onclick="showProject(\''+p.id+'\')">📂</button>';
+    html+='<button class="ic-btn" title="Bearbeiten" onclick="editProject(\''+p.id+'\')">✏️</button>';
+    html+='<button class="ic-btn" title="Kopieren" onclick="copyProject(\''+p.id+'\')" style="color:#7F77DD;border-color:#b0a8ee;">⧉</button>';
+    html+='<button id="del-btn-'+p.id+'" class="ic-btn red" title="Loeschen" onclick="deleteProject(\''+p.id+'\')">🗑️</button>';
+    html+='<span id="del-conf-'+p.id+'" style="display:none;align-items:center;gap:3px;">'
+      +'<span style="font-size:10px;color:#E24B4A;white-space:nowrap;">Loeschen?</span>'
+      +'<button onclick="deleteProjectConfirm(\''+p.id+'\')" style="font-size:10px;padding:2px 6px;background:#E24B4A;color:#fff;border:none;border-radius:3px;cursor:pointer;">Ja</button>'
+      +'<button onclick="deleteProjectCancel(\''+p.id+'\')" style="font-size:10px;padding:2px 6px;background:#eee;color:#333;border:none;border-radius:3px;cursor:pointer;">Nein</button>'
+      +'</span>';
+    html+='</div></div>';
+    html+='<div class="proj-card-body">';
+    html+='<div class="proj-meta"><span class="meta-tag" style="background:'+sl.bg+';color:'+sl.col+';">'+sl.label+'</span>';
+    if(p.client)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">'+p.client+'</span>';
+    if(p.location)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">📍'+p.location+'</span>';
+    html+='</div>';
+    var dispStart=pd&&pd.pStart?pd.pStart:p.start;
+    var dispEnd=pd&&pd.pEnd?pd.pEnd:p.end;
+    html+='<div class="proj-dates">📅 <span>'+isoToDisp(dispStart)+'</span> - <span>'+isoToDisp(dispEnd)+'</span>';
+    if(p.desc)html+=' &middot; <span style="color:#aaa;">'+p.desc.substring(0,50)+(p.desc.length>50?'...':'')+'</span>';
+    html+='</div>';
+    html+=buildMiniGantt(p);
+    if(groups.length>0)html+='<div style="font-size:10px;color:#aaa;margin-bottom:6px;">Gewerke: <span style="color:#555;">'+groups.join(", ")+'</span></div>';
+    html+='<div class="status-row"><span style="font-size:10px;color:#666;">'+sums.rows+' Anwendungen</span>';
+    if(gwon>0)html+='<span class="status-chip s-gewonnen">✓ '+gwon+' Gewonnen</span>';
+    if(gopen>0)html+='<span class="status-chip s-bearbeitung">◉ '+gopen+' Offen/In Bearb.</span>';
+    if(glost>0)html+='<span class="status-chip s-verloren">✗ '+glost+' Verloren</span>';
+    html+='</div>';
+    if(sums.rows>0){
+      var wp=Math.round(gwon/tot*100),op=Math.round(gopen/tot*100),lp=Math.round(glost/tot*100);
+      html+='<div class="prog-bar-wrap"><div class="prog-label"><span style="color:#2a6010;">'+wp+'% Gewonnen</span><span style="color:#854f0b;">'+op+'% Offen</span><span style="color:#7a1a1a;">'+lp+'% Verloren</span></div>';
+      html+='<div class="prog-bar"><div class="prog-fill" style="width:'+wp+'%;background:#1D9E75;"></div><div class="prog-fill" style="width:'+op+'%;background:#EF9F27;"></div><div class="prog-fill" style="width:'+lp+'%;background:#E24B4A;"></div></div></div>';
+    }
+    html+='<div style="border-top:1px solid #f0f0f0;padding-top:8px;margin-top:4px;">';
+    // Header row
+    html+='<div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;margin-bottom:4px;">';
+    html+='<div></div>';
+    html+='<div style="font-size:9px;color:#aaa;text-align:right;text-transform:uppercase;letter-spacing:.3px;">Spezifikation</div>';
+    html+='<div style="font-size:9px;color:#aaa;text-align:right;text-transform:uppercase;letter-spacing:.3px;">Potential/Umsatz</div>';
+    html+='</div>';
+    // Potential row
+    html+='<div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;margin-bottom:3px;">';
+    html+='<div style="font-size:10px;color:#1a3a8a;font-weight:500;">Potential</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#1a3a8a;text-align:right;">'+(sums.potSF>0?fmtEurK(sums.potSF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#1a3a8a;text-align:right;">'+(sums.potUF>0?fmtEurK(sums.potUF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='</div>';
+    // Umsatz row
+    html+='<div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;margin-bottom:3px;">';
+    html+='<div style="font-size:10px;color:#2a6010;font-weight:500;">Umsatz</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#2a6010;text-align:right;">'+(sums.umsSF>0?fmtEurK(sums.umsSF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#2a6010;text-align:right;">'+(sums.umsUF>0?fmtEurK(sums.umsUF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='</div>';
+    // Entgangen row
+    html+='<div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;margin-bottom:3px;">';
+    html+='<div style="font-size:10px;color:#7a1a1a;font-weight:500;">Entgangen</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#7a1a1a;text-align:right;">'+(sums.entSF>0?fmtEurK(sums.entSF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='<div style="font-size:11px;font-weight:700;color:#7a1a1a;text-align:right;">'+(sums.entUF>0?fmtEurK(sums.entUF):'<span style="color:#ccc;">-</span>')+'</div>';
+    html+='</div>';
+    html+='</div>';
+    if(p.link)html+='<div style="margin-top:6px;"><a href="'+p.link+'" target="_blank" style="font-size:10px;color:#378ADD;">🔗 Projektlink</a></div>';
+    html+='<button class="open-btn" onclick="showProject(\''+p.id+'\')">📂 Projekt oeffnen -></button>';
+    html+='</div></div>';
+  });
+  document.getElementById("projGrid").innerHTML=html;
+}
+
+// ---
+//  PROJECT MODAL
+// ---
+function showNewProject(){
+  ["mName","mClient","mDesc","mId","mLocation","mLink"].forEach(function(id){document.getElementById(id).value="";});
+  dpSet("mStart","");dpSet("mEnd","");var _ms=document.getElementById("mStart-iso");var _me=document.getElementById("mEnd-iso");if(_ms)_ms.value="";if(_me)_me.value="";
+  document.getElementById("mStatus").value="planned";document.getElementById("mColor").value="#378ADD";
+  document.getElementById("mEditId").value="";document.getElementById("modalTitle").textContent="Neues Projekt";
+  document.getElementById("projModalBg").style.display="flex";
+  setTimeout(function(){document.getElementById("mName").focus();},80);
+}
+function editProject(id){
+  var p=getProjMeta(id);if(!p)return;
+  document.getElementById("modalTitle").textContent="Projekt bearbeiten";
+  document.getElementById("mName").value=p.name||"";document.getElementById("mClient").value=p.client||"";
+  document.getElementById("mDesc").value=p.desc||"";document.getElementById("mId").value=p.projId||"";
+  document.getElementById("mLocation").value=p.location||"";
+  dpSet("mStart",p.start||"");
+  dpSet("mEnd",p.end||"");
+  // Also directly set hidden ISO inputs
+  var msi=document.getElementById("mStart-iso");
+  var mei=document.getElementById("mEnd-iso");
+  if(msi)msi.value=p.start||"";
+  if(mei)mei.value=p.end||"";
+  document.getElementById("mStatus").value=p.status||"planned";
+  document.getElementById("mColor").value=p.color||"#378ADD";document.getElementById("mLink").value=p.link||"";
+  document.getElementById("mEditId").value=id;document.getElementById("projModalBg").style.display="flex";
+}
+function closeModal(){document.getElementById("projModalBg").style.display="none";}
+function saveProject(){
+  var name=document.getElementById("mName").value.trim();
+  if(!name){showToast("Bitte Projektname eingeben.");return;}
+  var editId=document.getElementById("mEditId").value;
+  // Read ISO values from hidden inputs (most reliable) with fallback to dpGetISO
+  var msi=document.getElementById("mStart-iso");
+  var mei=document.getElementById("mEnd-iso");
+  var startISO=(msi&&msi.value)?msi.value:dpGetISO("mStart");
+  var endISO=(mei&&mei.value)?mei.value:dpGetISO("mEnd");
+  var proj={name:name,client:document.getElementById("mClient").value.trim(),
+    desc:document.getElementById("mDesc").value.trim(),projId:document.getElementById("mId").value.trim(),
+    location:document.getElementById("mLocation").value.trim(),start:startISO,end:endISO,
+    status:document.getElementById("mStatus").value,
+    color:document.getElementById("mColor").value,link:document.getElementById("mLink").value.trim()};
+  if(editId){
+    var idx=portfolio.projects.findIndex(function(x){return x.id===editId;});
+    if(idx>=0){
+      proj.id=editId;proj.created=portfolio.projects[idx].created;portfolio.projects[idx]=proj;
+      // Also sync dates into the gantt data so Zeitplan stays in sync
+      var gd=getProjData(editId);
+      if(gd){
+        if(startISO)gd.pStart=startISO;
+        if(endISO)gd.pEnd=endISO;
+        localStorage.setItem(PROJ_KEY+editId,JSON.stringify(gd));
+      }
+    }
+  }else{
+    proj.id=uid();proj.created=Date.now();portfolio.projects.push(proj);
+    var newProjData={rows:[],projectLink:"",pStart:startISO||"",pEnd:endISO||"",scale:"month"};
+    localStorage.setItem(PROJ_KEY+proj.id,JSON.stringify(newProjData));
+    sbSet(PROJ_KEY+proj.id,newProjData,null);
+  }
+  savePortfolio();closeModal();renderProjects();showToast(editId?"Projekt aktualisiert.":"Projekt erstellt.");
+}
+function deleteProject(id){
+  var p=getProjMeta(id);if(!p)return;
+  // Show inline confirmation in the card
+  var btn=document.getElementById("del-btn-"+id);
+  var conf=document.getElementById("del-conf-"+id);
+  if(btn)btn.style.display="none";
+  if(conf)conf.style.display="inline-flex";
+}
+function deleteProjectConfirm(id){
+  portfolio.projects=portfolio.projects.filter(function(x){return x.id!==id;});
+  try{localStorage.removeItem(PROJ_KEY+id);}catch(e){}
+  sbDelete(PROJ_KEY+id,null); // remove project data from cloud
+  savePortfolio();renderProjects();showToast("Projekt geloescht.");
+}
+function deleteProjectCancel(id){
+  var btn=document.getElementById("del-btn-"+id);
+  var conf=document.getElementById("del-conf-"+id);
+  if(btn)btn.style.display="inline-flex";
+  if(conf)conf.style.display="none";
+}
+
+function copyProject(id){
+  var p=getProjMeta(id);if(!p)return;
+  var newId=uid();
+  var copy=JSON.parse(JSON.stringify(p));
+  copy.id=newId;
+  copy.name=p.name+" (Kopie)";
+  copy.created=Date.now();
+  portfolio.projects.push(copy);
+  var d=getProjData(id);
+  var copyData=d?JSON.parse(JSON.stringify(d)):{rows:[],projectLink:"",pStart:copy.start||"",pEnd:copy.end||"",scale:"month"};localStorage.setItem(PROJ_KEY+newId,JSON.stringify(copyData));sbSet(PROJ_KEY+newId,copyData,null);
+  savePortfolio();renderProjects();showToast("Projekt kopiert.");
+}
+
+// ---
+//  IMPORT / EXPORT
+// ---
+// -- Portfolio backup (all projects) --
+function downloadJson(data, filename){
+  try{
+    var json=JSON.stringify(data,null,2);
+    var blob=new Blob([json],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;
+    a.download=filename;
+    a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},200);
+  }catch(e){
+    // Fallback: offer copy to clipboard
+    showToast("Download fehlgeschlagen. Daten in Zwischenablage kopiert.");
+    try{navigator.clipboard.writeText(JSON.stringify(data,null,2));}catch(e2){}
+  }
+}
+function exportAllJson(){
+  var backup={type:"portfolio_backup",portfolio:portfolio,projects:{}};
+  portfolio.projects.forEach(function(p){var d=getProjData(p.id);if(d)backup.projects[p.id]=d;});
+  var fname="portfolio_backup_"+new Date().toISOString().slice(0,10)+".json";
+  downloadJson(backup,fname);
+  showToast("Portfolio-Backup wird heruntergeladen.");
+}
+// -- Single project backup --
+function exportProjJson(){
+  if(!currentProjId)return;
+  var meta=getProjMeta(currentProjId);
+  var d=getProjData(currentProjId);
+  var backup={type:"project_backup",meta:meta,data:d};
+  var safe=(meta?meta.name.replace(/[^a-zA-Z0-9]/g,"_"):"projekt");
+  var fname=safe+"_backup_"+new Date().toISOString().slice(0,10)+".json";
+  downloadJson(backup,fname);
+  showToast("Projekt-Backup wird heruntergeladen.");
+}
+// -- Portfolio import --
+function showImport(){
+  document.getElementById("importMode").value="portfolio";
+  document.getElementById("importTitle").textContent="Portfolio importieren";
+  document.getElementById("importDesc").textContent="Vollstaendiges Portfolio-Backup (.json) -- ersetzt alle Projekte oder fuegt neue hinzu.";
+  document.getElementById("importMerge").style.display="block";
+  document.getElementById("importFile").value="";
+  document.getElementById("importBg").style.display="flex";
+}
+// -- Project import (from project view or portfolio) --
+function showProjImport(){
+  var inProject=currentProjId!==null;
+  document.getElementById("importMode").value=inProject?"project":"portfolio";
+  document.getElementById("importTitle").textContent="Projekt importieren";
+  if(inProject){
+    document.getElementById("importDesc").textContent="Projekt-Backup (.json) importieren. Die Eintraege ersetzen die aktuellen Daten dieses Projekts. Oder: Portfolio-Backup importieren, um alle Projekte wiederherzustellen.";
+  }else{
+    document.getElementById("importDesc").textContent="Projekt-Backup (.json) importieren -- wird als neues Projekt hinzugefuegt. Portfolio-Backup importiert alle Projekte auf einmal.";
+  }
+  document.getElementById("importMerge").style.display="none";
+  document.getElementById("importFile").value="";
+  document.getElementById("importBg").style.display="flex";
+}
+function closeImport(){document.getElementById("importBg").style.display="none";}
+function doImport(){
+  var f=document.getElementById("importFile").files[0];
+  if(!f){showToast("Bitte zuerst eine Datei auswaehlen.");return;}
+  var mode=document.getElementById("importMode").value;
+  var merge=document.getElementById("importMergeCheck")&&document.getElementById("importMergeCheck").checked;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      // -- Portfolio backup format --
+      if(data.type==="portfolio_backup"||data.portfolio&&data.portfolio.projects){
+        if(merge){
+          // Merge: add projects that don't exist yet, update existing
+          var incoming=data.portfolio.projects||[];
+          incoming.forEach(function(p){
+            var existing=portfolio.projects.findIndex(function(x){return x.id===p.id;});
+            if(existing>=0){portfolio.projects[existing]=p;}
+            else{portfolio.projects.push(p);}
+          });
+        }else{
+          portfolio=data.portfolio;
+        }
+        savePortfolio();
+        if(data.projects){
+          Object.keys(data.projects).forEach(function(id){
+            localStorage.setItem(PROJ_KEY+id,JSON.stringify(data.projects[id]));sbSet(PROJ_KEY+id,data.projects[id],null);
+          });
+        }
+        closeImport();showPortfolio();showToast("Portfolio-Import erfolgreich ("+( data.portfolio&&data.portfolio.projects?data.portfolio.projects.length:0)+" Projekte).");
+        return;
+      }
+      // -- Single project backup format --
+      if(data.type==="project_backup"&&data.meta&&data.data){
+        if(mode==="project"&&currentProjId){
+          // Import into current project (overwrite rows/data)
+          rows=data.data.rows||[];
+          projLink=data.data.projectLink||"";
+          if(data.data.pStart)document.getElementById("pStart").value=data.data.pStart;
+          if(data.data.pEnd)document.getElementById("pEnd").value=data.data.pEnd;
+          if(data.data.scale)document.getElementById("scaleMode").value=data.data.scale;
+          rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
+          buildTable();buildSumCards();buildGantt();saveProjData();
+          closeImport();showToast("Projektdaten erfolgreich importiert ("+rows.length+" Eintraege).");
+        }else{
+          // Import as new project
+          var newId=uid();
+          var newMeta=JSON.parse(JSON.stringify(data.meta));
+          newMeta.id=newId;
+          newMeta.name=newMeta.name+" (Import)";
+          newMeta.created=Date.now();
+          portfolio.projects.push(newMeta);
+          localStorage.setItem(PROJ_KEY+newId,JSON.stringify(data.data));
+          savePortfolio();closeImport();showPortfolio();showToast("Importiert: " + newMeta.name);
+        }
+        return;
+      }
+      // -- Legacy format (old omv_gantt_v3 style) --
+      if(data.rows){
+        if(mode==="project"&&currentProjId){
+          rows=data.rows||[];
+          projLink=data.projectLink||"";
+          if(data.pStart)document.getElementById("pStart").value=data.pStart;
+          if(data.pEnd)document.getElementById("pEnd").value=data.pEnd;
+          rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
+          buildTable();buildSumCards();buildGantt();saveProjData();
+          closeImport();showToast("Daten importiert ("+rows.length+" Eintraege).");
+        }else{
+          // Create new project from legacy data
+          var newId2=uid();
+          portfolio.projects.push({id:newId2,name:"Importiertes Projekt",client:"",desc:"",projId:"",location:"",
+            start:data.pStart||"",end:data.pEnd||"",status:"active",color:"#378ADD",link:"",created:Date.now()});
+          localStorage.setItem(PROJ_KEY+newId2,JSON.stringify(data));
+          savePortfolio();closeImport();showPortfolio();showToast("Projekt aus Legacy-Backup importiert.");
+        }
+        return;
+      }
+      showToast("Unbekanntes Backup-Format - Import fehlgeschlagen.");
+    }catch(ex){
+      showToast("Fehler beim Importieren: "+ex.message);
+      console.error(ex);
+    }
+  };
+  reader.readAsText(f);
+}
+
+// ---
+//  PROJECT LINK
+// ---
+function editProjectLink(){var u=prompt("Projektlink (URL):",projLink||"");if(u===null)return;projLink=u.trim();renderProjectLink();saveProjData();}
+function renderProjectLink(){var el=document.getElementById("pv-linkDisplay");if(!el)return;el.innerHTML=projLink?'<a href="'+projLink+'" target="_blank" class="link-icon">🔗 Oeffnen</a>':"";}
+
+// ---
+//  SUMS
+// ---
+function calcSums(){
+  var tot={potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0},byG={};
+  rows.forEach(function(r){
+    if(!byG[r.g])byG[r.g]={potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0};
+    var sf=fmtEurRaw(r.sf),uf=fmtEurRaw(r.uf),ls=r.ls;
+    var dest=ls==="Gewonnen"?"ums":ls==="Verloren"?"ent":"pot";
+    byG[r.g][dest+"SF"]+=sf;byG[r.g][dest+"UF"]+=uf;tot[dest+"SF"]+=sf;tot[dest+"UF"]+=uf;
+  });
+  return{tot:tot,byG:byG};
+}
+function buildSumCards(){
+  var s=calcSums().tot;
+  var cards=[
+    {label:"Potential",sub:"-/Offen/In Bearbeitung",sfv:s.potSF,ufv:s.potUF,bg:"#e8f0ff",col:"#1a3a8a",brd:"#378ADD"},
+    {label:"Umsatz",sub:"Gewonnen",sfv:s.umsSF,ufv:s.umsUF,bg:"#e8f4e8",col:"#2a6010",brd:"#1D9E75"},
+    {label:"Entgangener Umsatz",sub:"Verloren",sfv:s.entSF,ufv:s.entUF,bg:"#fce8e8",col:"#7a1a1a",brd:"#E24B4A"}
+  ];
+  document.getElementById("sumCards").innerHTML=cards.map(function(c){
+    return'<div class="sum-card" style="background:'+c.bg+';border:1px solid '+c.brd+';color:'+c.col+';">'
+      +'<div class="slabel">'+c.label+'</div><div style="font-size:10px;opacity:.7;margin-bottom:6px;">('+c.sub+')</div>'
+      +'<div style="font-size:10px;opacity:.75;">Spezifikation</div><div class="val">'+fmtEur(c.sfv)+'</div>'
+      +'<div style="font-size:10px;opacity:.75;margin-top:4px;">Potential/Umsatz</div><div class="val">'+fmtEur(c.ufv)+'</div>'
+      +'</div>';
+  }).join("");
+}
+
+// ---
+//  TABLE
+// ---
+function getRowGroups(){var seen={},gs=[];rows.forEach(function(r){if(!seen[r.g]){seen[r.g]=1;gs.push(r.g);}});return gs;}
+function fillGewerkSel(id,cur){
+  var s=document.getElementById(id);s.innerHTML="<option value=''>- waehlen -</option>";
+  getRowGroups().forEach(function(g){var o=document.createElement("option");o.value=g;o.textContent=g;if(g===cur)o.selected=true;s.appendChild(o);});
+  var n=document.createElement("option");n.value="__new__";n.textContent="+ Neues Gewerk...";s.appendChild(n);
+}
+function onGewerkSel(pfx){var v=document.getElementById(pfx+"Gewerk").value,ni=document.getElementById(pfx+"GewerkNew");ni.style.display=(v==="__new__"||v==="")?'block':'none';if(v!=="__new__")ni.value="";}
+function toggleProjPanel(id){
+  var open=document.getElementById(id).style.display==="none";
+  ["addPanel","editPanel","copyPanel","renamePanel"].forEach(function(x){document.getElementById(x).style.display="none";});
+  if(!open)return;
+  document.getElementById(id).style.display="block";
+  if(id==="addPanel"){fillGewerkSel("nGewerk","");document.getElementById("nGewerkNew").style.display="none";styleSelect(document.getElementById("nPrio"),"prio");styleSelect(document.getElementById("nLS"),"ls");onTypChange("n");}
+  if(id==="copyPanel")initCopyPanel();
+  if(id==="renamePanel")initRenamePanel();
+}
+
+function prioSelHTML(val,ri){var st=prioStyle(val);var h='<select data-ri="'+ri+'" data-f="prio" onchange="onTblChange(this)" style="font-size:11px;padding:2px 4px;border:0.5px solid '+st.b+';border-radius:3px;background:'+st.bg+';color:'+st.col+';width:88px;">';["Highest","High","Medium","Low"].forEach(function(o){h+='<option'+(o===val?" selected":"")+'>'+o+'</option>';});return h+'</select>';}
+function lsSelHTML(val,ri){var st=lsStyle(val);var h='<select data-ri="'+ri+'" data-f="ls" onchange="onTblChange(this)" style="font-size:11px;padding:2px 4px;border:0.5px solid '+st.b+';border-radius:3px;background:'+st.bg+';color:'+st.col+';width:110px;">';["","Offen","In Bearbeitung","Gewonnen","Verloren"].forEach(function(o){h+='<option value="'+o+'"'+(o===val?" selected":"")+'>'+(o||"-")+'</option>';});return h+'</select>';}
+function typSelHTML(val,ri){var isPl=val==="Planung";var h='<select data-ri="'+ri+'" data-f="typ" onchange="onTblChange(this)" style="font-size:11px;padding:2px 4px;border:0.5px solid #aaa;border-radius:3px;width:90px;">';h+='<option value="Planung"'+(isPl?' selected':'')+'>Planung</option>';h+='<option value="Ausfuehrung"'+(!isPl?' selected':'')+'>Ausfuehrung</option>';return h+'</select>';}
+function eurCellHTML(val,ri,f){return'<input type="text" value="'+fmtEur(val)+'" data-ri="'+ri+'" data-f="'+f+'" onchange="onTblChange(this)" onblur="this.value=fmtEur(this.value);onTblChange(this)" style="width:102px;text-align:right;">';}
+
+function onTblChangeDateRow(t){
+  // Called from text date inputs in table - convert TT.MM.JJJJ to ISO
+  var ri=parseInt(t.getAttribute("data-ri")),f=t.getAttribute("data-f");
+  if(isNaN(ri)||!f)return;
+  rows[ri][f]=dispToIso(t.value)||t.value;
+  buildGantt();saveProjData();
+}
+function dpOpenRow(t){
+  // Open datepicker for a table-row date input
+  var ri=t.getAttribute("data-ri"),f=t.getAttribute("data-f");
+  // Create a temporary unique id
+  var tid="dp_row_"+ri+"_"+f;
+  t.id=tid;
+  dpState._rowRef={ri:parseInt(ri),f:f,el:t};
+  dpOpen(tid);
+}
+function onTblChange(t){
+  var ri=parseInt(t.getAttribute("data-ri")),f=t.getAttribute("data-f");if(isNaN(ri)||!f)return;
+  rows[ri][f]=t.value;
+  if(f==="prio"){var st=prioStyle(t.value);t.style.background=st.bg;t.style.color=st.col;t.style.borderColor=st.b;}
+  if(f==="ls"){var st2=lsStyle(t.value);t.style.background=st2.bg;t.style.color=st2.col;t.style.borderColor=st2.b;buildTable();}
+  if(f==="typ"){buildTable();buildGantt();}
+  if(f==="s"||f==="e"||f==="m")buildGantt();
+  buildSumCards(); // always refresh sums on any change
+  saveProjData();
+}
+
+function buildTable(){
+  var sums=calcSums();var html="",lastG="";
+  rows.forEach(function(r,i){
+    var c=gc(r.g),bg=i%2===0?"":"background:#fafffe;";
+    html+='<tr style="'+bg+'">';
+    if(r.g!==lastG){
+      var cnt=rows.filter(function(x){return x.g===r.g;}).length;
+      var gLink=r.gl?'<a href="'+r.gl+'" target="_blank" class="link-icon" style="margin-top:3px;">🔗</a>':'';
+      html+='<td rowspan="'+(cnt+1)+'" style="vertical-align:top;padding-top:8px;border-right:2px solid '+c+';font-weight:600;background:#fafafa;min-width:110px;"><div>'+r.g+'</div>'+gLink+'</td>';
+      lastG=r.g;
+    }
+    var aLink=r.al?'<a href="'+r.al+'" target="_blank" class="link-icon" style="margin-left:3px;">🔗</a>':'';
+    html+='<td><div style="display:flex;align-items:center;gap:3px;">'+r.art+aLink+'</div></td>';
+    html+='<td>'+typSelHTML(r.typ,i)+'</td><td>'+prioSelHTML(r.prio,i)+'</td>';
+    html+='<td><input type="text" value="'+isoToDisp(r.s)+'" data-ri="'+i+'" data-f="s" onchange="onTblChangeDateRow(this)" onclick="dpOpenRow(this)" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:106px;cursor:pointer;padding-right:22px;"><span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;">📅</span></td>';
+    html+='<td style="position:relative;"><input type="text" value="'+isoToDisp(r.e)+'" data-ri="'+i+'" data-f="e" onchange="onTblChangeDateRow(this)" onclick="dpOpenRow(this)" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:106px;cursor:pointer;padding-right:22px;"><span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;">📅</span></td>';
+    html+='<td style="position:relative;"><input type="text" value="'+isoToDisp(r.m||'')+'" data-ri="'+i+'" data-f="m" onchange="onTblChangeDateRow(this)" onclick="dpOpenRow(this)" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:106px;cursor:pointer;padding-right:22px;"></td>';
+    html+='<td><input type="text" value="'+r.pz+'" data-ri="'+i+'" data-f="pz" onchange="onTblChange(this)" placeholder="..." style="width:82px;"></td>';
+    html+='<td>'+lsSelHTML(r.ls,i)+'</td>';
+    var isPl=r.typ==="Planung";
+    html+='<td>'+(isPl?eurCellHTML(r.sf,i,"sf"):'<span style="color:#bbb;font-size:10px;">n/a</span>')+'</td>';
+    html+='<td>'+(!isPl?eurCellHTML(r.uf,i,"uf"):'<span style="color:#bbb;font-size:10px;">n/a</span>')+'</td>';
+    html+='<td class="no-print" style="white-space:nowrap;text-align:center;"><button class="btn-edit-row" onclick="openEdit('+i+')">✏️</button> <button class="btn-copy-row" onclick="copyRow('+i+')">⧉</button> <button class="btn-del" onclick="deleteRow('+i+')">✕</button></td>';
+    html+='</tr>';
+    var isLast=(i===rows.length-1)||(rows[i+1]&&rows[i+1].g!==r.g);
+    if(isLast){
+      var gs=sums.byG[r.g]||{potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0};
+      html+='<tr class="group-sum"><td colspan="8" style="text-align:right;font-size:10px;font-style:italic;color:#555;">'+r.g+' -- <span style="color:#1a3a8a;">Potential</span> / <span style="color:#2a6010;">Umsatz</span> / <span style="color:#7a1a1a;">Entgangen</span></td>'
+        +'<td style="text-align:right;font-size:10px;"><div style="color:#1a3a8a;">'+fmtEur(gs.potSF)+'</div><div style="color:#2a6010;">'+fmtEur(gs.umsSF)+'</div><div style="color:#7a1a1a;">'+fmtEur(gs.entSF)+'</div></td>'
+        +'<td style="text-align:right;font-size:10px;"><div style="color:#1a3a8a;">'+fmtEur(gs.potUF)+'</div><div style="color:#2a6010;">'+fmtEur(gs.umsUF)+'</div><div style="color:#7a1a1a;">'+fmtEur(gs.entUF)+'</div></td>'
+        +'<td class="no-print"></td></tr>';
+    }
+  });
+  var tot=sums.tot;
+  html+='<tr class="total-row"><td colspan="8" style="text-align:right;">Gesamt -- <span style="color:#1a3a8a;">Potential</span> / <span style="color:#2a6010;">Umsatz</span> / <span style="color:#7a1a1a;">Entgangen</span></td>'
+    +'<td style="text-align:right;"><div style="color:#1a3a8a;">'+fmtEur(tot.potSF)+'</div><div style="color:#2a6010;">'+fmtEur(tot.umsSF)+'</div><div style="color:#7a1a1a;">'+fmtEur(tot.entSF)+'</div></td>'
+    +'<td style="text-align:right;"><div style="color:#1a3a8a;">'+fmtEur(tot.potUF)+'</div><div style="color:#2a6010;">'+fmtEur(tot.umsUF)+'</div><div style="color:#7a1a1a;">'+fmtEur(tot.entUF)+'</div></td>'
+    +'<td class="no-print"></td></tr>';
+  document.getElementById("tbody").innerHTML=html;
+}
+
+function openEdit(i){
+  var r=rows[i];fillGewerkSel("eGewerk",r.g);document.getElementById("eGewerkNew").style.display="none";
+  document.getElementById("eArt").value=r.art;document.getElementById("eGewerkLink").value=r.gl||"";document.getElementById("eArtLink").value=r.al||"";
+  document.getElementById("eTyp").value=r.typ||"Ausfuehrung";onTypChange("e");
+  var ep=document.getElementById("ePrio");ep.value=r.prio;styleSelect(ep,"prio");
+  dpSet("eStart",r.s);dpSet("eEnd",r.e);dpSet("eMile",r.m||"");document.getElementById("ePZ").value=r.pz;
+  var el=document.getElementById("eLS");el.value=r.ls;styleSelect(el,"ls");
+  document.getElementById("eSF").value=fmtEur(r.sf);document.getElementById("eUF").value=fmtEur(r.uf);
+  document.getElementById("editIdx").value=i;
+  ["addPanel","copyPanel","renamePanel"].forEach(function(x){document.getElementById(x).style.display="none";});
+  document.getElementById("editPanel").style.display="block";
+  document.getElementById("editPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function saveEdit(){
+  var i=parseInt(document.getElementById("editIdx").value);
+  var gSel=document.getElementById("eGewerk").value,gNew=document.getElementById("eGewerkNew").value.trim();
+  var g=(gSel==="__new__"||gSel==="")?gNew:gSel,art=document.getElementById("eArt").value.trim();
+  if(!g||!art){alert("Gewerk und Anwendung sind Pflichtfelder.");return;}gc(g);
+  rows[i]={g:g,gl:document.getElementById("eGewerkLink").value,art:art,al:document.getElementById("eArtLink").value,
+    typ:document.getElementById("eTyp").value,prio:document.getElementById("ePrio").value,
+    s:dpGetISO("eStart"),e:dpGetISO("eEnd"),
+    m:dpGetISO("eMile"),pz:document.getElementById("ePZ").value,
+    ls:document.getElementById("eLS").value,sf:document.getElementById("eSF").value,uf:document.getElementById("eUF").value};
+  rows.sort(function(a,b){return a.g<b.g?-1:a.g>b.g?1:0;});
+  document.getElementById("editPanel").style.display="none";buildTable();buildSumCards();buildGantt();saveProjData();
+}
+function cancelEdit(){document.getElementById("editPanel").style.display="none";}
+function addRow(){
+  var gSel=document.getElementById("nGewerk").value,gNew=document.getElementById("nGewerkNew").value.trim();
+  var g=(gSel==="__new__"||gSel==="")?gNew:gSel,art=document.getElementById("nArt").value.trim();
+  var s=dpGetISO("nStart"),e=dpGetISO("nEnd");
+  var errEl=document.getElementById("addErr");
+  if(!g){errEl.textContent="Bitte Gewerk.";errEl.style.display="block";return;}
+  if(!art){errEl.textContent="Bitte Anwendung.";errEl.style.display="block";return;}
+  if(!s||!e){errEl.textContent="Bitte Datum.";errEl.style.display="block";return;}
+  errEl.style.display="none";gc(g);
+  rows.push({g:g,gl:document.getElementById("nGewerkLink").value,art:art,al:document.getElementById("nArtLink").value,
+    typ:document.getElementById("nTyp").value,prio:document.getElementById("nPrio").value,
+    s:s,e:e,m:dpGetISO("nMile")||s,pz:document.getElementById("nPZ").value,
+    ls:document.getElementById("nLS").value,sf:document.getElementById("nSF").value,uf:document.getElementById("nUF").value});
+  rows.sort(function(a,b){return a.g<b.g?-1:a.g>b.g?1:0;});
+  ["nGewerk","nArt","nGewerkLink","nArtLink","nPZ","nLS","nSF","nUF"].forEach(function(id){document.getElementById(id).value="";}); dpSet("nStart","");dpSet("nEnd","");dpSet("nMile","");
+  document.getElementById("nGewerkNew").value="";document.getElementById("nGewerkNew").style.display="none";
+  document.getElementById("addPanel").style.display="none";buildTable();buildSumCards();buildGantt();saveProjData();
+}
+function deleteRow(i){
+  var art=rows[i]?rows[i].art:"";
+  // Use a non-blocking deletion with undo-style toast
+  rows.splice(i,1);buildTable();buildSumCards();buildGantt();saveProjData();
+  showToast("Eintrag \""+art+"\" geloescht.");
+}
+function copyRow(i){var r=JSON.parse(JSON.stringify(rows[i]));r.art+=" (Kopie)";rows.splice(i+1,0,r);buildTable();buildSumCards();buildGantt();saveProjData();}
+
+function initRenamePanel(){var s=document.getElementById("rnGewerk");s.innerHTML="";getRowGroups().forEach(function(g){var o=document.createElement("option");o.value=g;o.textContent=g;s.appendChild(o);});document.getElementById("rnNewName").value="";}
+function doRenameGewerk(){
+  var oldName=document.getElementById("rnGewerk").value,newName=document.getElementById("rnNewName").value.trim();
+  if(!newName){alert("Bitte Namen eingeben.");return;}
+  if(newName===oldName){document.getElementById("renamePanel").style.display="none";return;}
+  if(gcMap[oldName]&&!gcMap[newName])gcMap[newName]=gcMap[oldName];if(!gcMap[newName])gc(newName);
+  rows.forEach(function(r){if(r.g===oldName)r.g=newName;});
+  rows.sort(function(a,b){return a.g<b.g?-1:a.g>b.g?1:0;});
+  document.getElementById("renamePanel").style.display="none";buildTable();buildSumCards();buildGantt();saveProjData();
+}
+function initCopyPanel(){var gs=getRowGroups(),src=document.getElementById("cpSrcGewerk");src.innerHTML="";gs.forEach(function(g){var o=document.createElement("option");o.value=g;o.textContent=g;src.appendChild(o);});fillGewerkSel("cpDstGewerk","");document.getElementById("cpDstNew").style.display="none";fillCopyAnw();}
+function fillCopyAnw(){var g=document.getElementById("cpSrcGewerk").value,sel=document.getElementById("cpSrcAnw");sel.innerHTML="<option value=''>- Ganzes Gewerk kopieren -</option>";rows.filter(function(r){return r.g===g;}).forEach(function(r){var o=document.createElement("option");o.value=r.art;o.textContent=r.art;sel.appendChild(o);});}
+function onCpDstSel(){var v=document.getElementById("cpDstGewerk").value;document.getElementById("cpDstNew").style.display=(v==="__new__"||v==="")?'block':'none';}
+function doCopy(){
+  var srcG=document.getElementById("cpSrcGewerk").value,srcAnw=document.getElementById("cpSrcAnw").value;
+  var dstGSel=document.getElementById("cpDstGewerk").value,dstGNew=document.getElementById("cpDstNew").value.trim();
+  var dstG=(dstGSel==="__new__"||dstGSel==="")?dstGNew:dstGSel,offset=parseInt(document.getElementById("cpOffset").value)||0;
+  if(!dstG){alert("Bitte Ziel-Gewerk.");return;}gc(dstG);
+  rows.filter(function(r){return r.g===srcG&&(srcAnw===""||r.art===srcAnw);}).forEach(function(r){
+    var nr=JSON.parse(JSON.stringify(r));nr.g=dstG;
+    if(offset){["s","e","m"].forEach(function(f){if(nr[f]){var d=toD(nr[f]);d.setDate(d.getDate()+offset);nr[f]=toISO(d);}});}
+    rows.push(nr);
+  });
+  rows.sort(function(a,b){return a.g<b.g?-1:a.g>b.g?1:0;});
+  document.getElementById("copyPanel").style.display="none";buildTable();buildSumCards();buildGantt();saveProjData();
+}
+
+// ---
+//  EXCEL EXPORT
+// ---
+function exportXlsx(){
+  if(typeof XLSX==="undefined"){alert("SheetJS nicht geladen.");return;}
+  var wb=XLSX.utils.book_new();
+  var hdr=["Gewerk","Anwendung","Typ","Prioritaet","Start","Ende","Vergabe","Projektziel","Lead Status","Spezifikation (\u20AC)","Potential/Umsatz (\u20AC)"];
+  var data=[hdr];
+  rows.forEach(function(r){data.push([r.g,r.art,r.typ==="Planung"?"Planung":"Ausfuehrung",r.prio,isoToDisp(r.s),isoToDisp(r.e),isoToDisp(r.m),r.pz,r.ls||"-",fmtEurRaw(r.sf),fmtEurRaw(r.uf)]);});
+  var sums=calcSums();data.push([]);
+  getRowGroups().forEach(function(g){var gs=sums.byG[g]||{potSF:0,potUF:0,umsSF:0,umsUF:0,entSF:0,entUF:0};
+    data.push([g+" - Potential","","","","","","","","",gs.potSF,gs.potUF]);
+    data.push([g+" - Umsatz","","","","","","","","",gs.umsSF,gs.umsUF]);
+    data.push([g+" - Entgangen","","","","","","","","",gs.entSF,gs.entUF]);});
+  var t=sums.tot;data.push([]);
+  data.push(["GESAMT - Potential","","","","","","","","",t.potSF,t.potUF]);
+  data.push(["GESAMT - Umsatz","","","","","","","","",t.umsSF,t.umsUF]);
+  data.push(["GESAMT - Entgangen","","","","","","","","",t.entSF,t.entUF]);
+  var ws=XLSX.utils.aoa_to_sheet(data);ws["!cols"]=[{wch:22},{wch:35},{wch:12},{wch:10},{wch:12},{wch:12},{wch:12},{wch:18},{wch:16},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,"Eintraege");
+  var meta=getProjMeta(currentProjId);
+  XLSX.writeFile(wb,(meta?meta.name.replace(/[^a-zA-Z0-9]/g,"_"):"Projekt")+"_Projektplan.xlsx");
+}
+
+// ---
+//  GANTT
+// ---
+var SCALE_MIN_W={week:1400,month:900,quarter:700,year:600};
+function getTL(){var ps=toD(dpGetISO("pStart")),pe=toD(dpGetISO("pEnd"));return{ps:ps,pe:pe,total:pe-ps};}
+function buildScaleTicks(ps,pe,mode){
+  var ticks=[],cur;
+  if(mode==="week"){cur=new Date(ps);var dow=cur.getDay();if(dow===0)dow=7;cur.setDate(cur.getDate()-(dow-1));while(cur<=pe){ticks.push({d:new Date(cur),label:"KW"+weekNum(cur)});cur.setDate(cur.getDate()+7);}}
+  else if(mode==="month"){cur=new Date(ps.getFullYear(),ps.getMonth(),1);while(cur<=pe){ticks.push({d:new Date(cur),label:cur.toLocaleString("de-AT",{month:"short"})+" "+cur.getFullYear()});cur.setMonth(cur.getMonth()+1);}}
+  else if(mode==="quarter"){cur=new Date(ps.getFullYear(),Math.floor(ps.getMonth()/3)*3,1);while(cur<=pe){ticks.push({d:new Date(cur),label:"Q"+(Math.floor(cur.getMonth()/3)+1)+" "+cur.getFullYear()});cur.setMonth(cur.getMonth()+3);}}
+  else{cur=new Date(ps.getFullYear(),0,1);while(cur<=pe){ticks.push({d:new Date(cur),label:String(cur.getFullYear())});cur.setFullYear(cur.getFullYear()+1);}}
+  return ticks;
+}
+function buildGantt(){
+  var tl=getTL();if(!tl.ps||!tl.pe||tl.total<=0)return;
+  var ps=tl.ps,pe=tl.pe,total=tl.total,mode=document.getElementById("scaleMode").value;
+  var ticks=buildScaleTicks(ps,pe,mode),today=new Date();today.setHours(0,0,0,0);
+  var todayPct=(today-ps)/total*100,minW=SCALE_MIN_W[mode]||900;
+  var html='<div style="min-width:'+minW+'px;">';
+  html+='<div style="display:flex;margin-bottom:2px;height:22px;align-items:stretch;"><div style="width:'+LW+'px;min-width:'+LW+'px;flex-shrink:0;"></div><div style="flex:1;position:relative;">';
+  ticks.forEach(function(tk,ti){
+    var left=(tk.d-ps)/total*100,nextD=ti+1<ticks.length?ticks[ti+1].d:new Date(pe.getTime()+86400000),width=(nextD-tk.d)/total*100;
+    if(left>100)return;if(left+width>100)width=100-left;if(left<0){width+=left;left=0;}if(width<=0)return;
+    html+='<div style="position:absolute;left:'+left.toFixed(3)+'%;width:'+width.toFixed(3)+'%;text-align:center;font-size:10px;color:#555;border-left:1px solid #ccc;height:100%;overflow:hidden;padding:2px 1px;background:#f7f7f7;">'+tk.label+'</div>';
+  });
+  html+='</div></div>';
+  var lastG="";
+  rows.forEach(function(r,i){
+    var c=gc(r.g);
+    if(r.g!==lastG){html+='<div style="display:flex;align-items:center;margin-top:5px;"><div style="width:'+LW+'px;min-width:'+LW+'px;flex-shrink:0;font-size:11px;font-weight:600;color:#555;padding:2px 8px;border-top:1px solid #ddd;border-left:3px solid '+c+';">'+r.g+'</div><div style="flex:1;border-top:1px solid #ddd;"></div></div>';lastG=r.g;}
+    var isPl=r.typ==="Planung";
+    html+='<div style="display:flex;align-items:center;margin-bottom:'+GAP+'px;"><div style="width:'+LW+'px;min-width:'+LW+'px;flex-shrink:0;font-size:11px;padding:1px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+r.art+'">'+r.art+(isPl?' <span style="font-size:9px;color:#888;">(P)</span>':'')+'</div>';
+    html+='<div id="ga-'+i+'" class="gantt-track" style="flex:1;height:'+ROW_H+'px;">';
+    ticks.forEach(function(tk){var lp=(tk.d-ps)/total*100;if(lp>0&&lp<100)html+='<div style="position:absolute;left:'+lp.toFixed(2)+'%;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.07);pointer-events:none;z-index:1;"></div>';});
+    if(todayPct>=0&&todayPct<=100)html+='<div style="position:absolute;left:'+todayPct.toFixed(2)+'%;top:-4px;bottom:-4px;width:2px;background:#E24B4A;z-index:6;border-radius:1px;pointer-events:none;"><div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:9px;color:#E24B4A;white-space:nowrap;font-weight:700;">Heute</div></div>';
+    if(r.s&&r.e){
+      var rs=toD(r.s),re=toD(r.e),lft=Math.max(0,Math.min(100,(rs-ps)/total*100)),rgt=Math.max(0,Math.min(100,(re-ps)/total*100));
+      if(rgt>lft){var hatch=isPl?"background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.55) 0,rgba(255,255,255,0.55) 3px,transparent 3px,transparent 9px);":"";
+        html+='<div id="bar-'+i+'" data-ri="'+i+'" data-act="move" style="position:absolute;left:'+lft.toFixed(3)+'%;width:'+(rgt-lft).toFixed(3)+'%;height:100%;background:'+c+';'+hatch+'border-radius:3px;opacity:0.9;cursor:grab;top:0;z-index:2;border:1px solid '+c+';">'
+          +'<div data-ri="'+i+'" data-act="resize-left" style="position:absolute;left:0;top:0;width:8px;height:100%;cursor:ew-resize;z-index:4;background:rgba(0,0,0,0.2);border-radius:3px 0 0 3px;"></div>'
+          +'<div data-ri="'+i+'" data-act="resize-right" style="position:absolute;right:0;top:0;width:8px;height:100%;cursor:ew-resize;z-index:4;background:rgba(0,0,0,0.2);border-radius:0 3px 3px 0;"></div>'
+          +'</div>';}
+    }
+    if(r.m){var rm=toD(r.m),mp=(rm-ps)/total*100;if(mp>=0&&mp<=100)html+='<div id="star-'+i+'" data-ri="'+i+'" data-act="star" style="position:absolute;left:'+mp.toFixed(3)+'%;top:50%;transform:translate(-50%,-50%);cursor:grab;z-index:8;line-height:0;user-select:none;"><svg width="17" height="17" viewBox="0 0 24 24" fill="#EF9F27" stroke="#BA7517" stroke-width="1.5" style="pointer-events:none;display:block;"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div>';}
+    html+='</div></div>';
+  });
+  html+='</div>';
+  document.getElementById("gantt-inner").innerHTML=html;
+  attachDrag(ps,pe,total);
+}
+function attachDrag(ps,pe,total){
+  document.getElementById("gantt-inner").addEventListener("mousedown",function(ev){
+    var t=ev.target,ri=parseInt(t.getAttribute("data-ri"));if(isNaN(ri))return;
+    var act=t.getAttribute("data-act");if(!act)return;ev.preventDefault();ev.stopPropagation();
+    var area=document.getElementById("ga-"+ri);
+    drag={ri:ri,act:act,startX:ev.clientX,areaW:area.getBoundingClientRect().width,
+      origS:toD(rows[ri].s),origE:toD(rows[ri].e),origM:rows[ri].m?toD(rows[ri].m):toD(rows[ri].s),ps:ps,pe:pe,total:total};
+  });
+}
+document.addEventListener("mousemove",function(ev){
+  if(!drag)return;var dx=ev.clientX-drag.startX,dMs=(dx/drag.areaW)*drag.total,msDay=86400000,r=rows[drag.ri];
+  if(drag.act==="move"){var ns=new Date(drag.origS.getTime()+dMs),ne=new Date(drag.origE.getTime()+dMs);if(ns<drag.ps){var sh=drag.ps-ns;ns=new Date(ns.getTime()+sh);ne=new Date(ne.getTime()+sh);}if(ne>drag.pe){var sh2=ne-drag.pe;ns=new Date(ns.getTime()-sh2);ne=new Date(ne.getTime()-sh2);}r.s=toISO(ns);r.e=toISO(ne);showTip(ev.clientX,ev.clientY,isoToDisp(r.s)+" - "+isoToDisp(r.e));}
+  else if(drag.act==="resize-left"){var ns2=new Date(drag.origS.getTime()+dMs);if(ns2>=toD(r.e))ns2=new Date(toD(r.e).getTime()-msDay);if(ns2<drag.ps)ns2=drag.ps;r.s=toISO(ns2);showTip(ev.clientX,ev.clientY,"Start: "+isoToDisp(r.s));}
+  else if(drag.act==="resize-right"){var ne2=new Date(drag.origE.getTime()+dMs);if(ne2<=toD(r.s))ne2=new Date(toD(r.s).getTime()+msDay);if(ne2>drag.pe)ne2=drag.pe;r.e=toISO(ne2);showTip(ev.clientX,ev.clientY,"Ende: "+isoToDisp(r.e));}
+  else if(drag.act==="star"){r.m=toISO(new Date(drag.origM.getTime()+dMs));showTip(ev.clientX,ev.clientY,"Vergabe: "+isoToDisp(r.m));}
+  buildGantt();syncTableRow(drag.ri);
+});
+document.addEventListener("mouseup",function(){if(drag){document.getElementById("tip").style.display="none";drag=null;saveProjData();}});
+function showTip(x,y,txt){var t=document.getElementById("tip");t.style.display="block";t.style.left=(x+14)+"px";t.style.top=(y-32)+"px";t.innerHTML=txt;}
+function syncTableRow(ri){var r=rows[ri];document.querySelectorAll("[data-ri='"+ri+"']").forEach(function(el){var f=el.getAttribute("data-f");if(f&&(f==="s"||f==="e"||f==="m")){el.value=isoToDisp(r[f]||"");}});}
+
+// ── DATE PICKER ──────────────────────────────────────────
+var dpState={id:null,year:0,month:0,_rowRef:null};
+
+function dpVal(id){
+  var el=document.getElementById(id);
+  if(!el)return"";
+  return dispToIso(el.value||"");
+}
+function dpGetISO(id){return dpVal(id);}
+function dpSetVal(id,iso){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.value=isoToDisp(iso||"");
+  // Also store ISO in hidden input if it exists
+  var hidden=document.getElementById(id+"-iso");
+  if(hidden)hidden.value=iso||"";
+}
+function dpSet(id,iso){dpSetVal(id,iso||"");}
+
+function dpOpen(id){
+  dpClose();
+  var el=document.getElementById(id);
+  if(!el)return;
+  var iso=dpVal(id);
+  var now=new Date();
+  dpState.id=id;
+  if(iso&&iso.length===10){var d=new Date(iso);dpState.year=d.getFullYear();dpState.month=d.getMonth();}
+  else{dpState.year=now.getFullYear();dpState.month=now.getMonth();}
+  dpRender();
+}
+
+function dpClose(){
+  var cal=document.getElementById("dp-calendar");
+  if(cal)cal.remove();
+  dpState.id=null;
+}
+
+function dpRender(){
+  var id=dpState.id;
+  if(!id)return;
+  var el=document.getElementById(id);
+  if(!el)return;
+  var rect=el.getBoundingClientRect();
+  var curISO=dpVal(id);
+  var selDate=curISO?new Date(curISO):null;
+  var today=new Date();today.setHours(0,0,0,0);
+  var y=dpState.year,m=dpState.month;
+  var mnames=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  var hdr="<div class='dp-cal-header'><button onclick='dpPrev()'>&#8249;</button><span class='dp-cal-month'>"+mnames[m]+" "+y+"</span><button onclick='dpNext()'>&#8250;</button></div>";
+  var dow="<div class='dp-cal-dow'><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>";
+  var firstDay=new Date(y,m,1).getDay();
+  firstDay=(firstDay+6)%7;
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var daysInPrev=new Date(y,m,0).getDate();
+  var days="<div class='dp-cal-days'>";
+  for(var i=0;i<firstDay;i++){days+="<div class='dp-day other-month'>"+(daysInPrev-firstDay+1+i)+"</div>";}
+  for(var d=1;d<=daysInMonth;d++){
+    var dd=new Date(y,m,d);
+    var cls="dp-day";
+    if(dd.getTime()===today.getTime())cls+=" today";
+    if(selDate&&dd.getTime()===selDate.getTime())cls+=" selected";
+    var iso=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    days+="<div class='"+cls+"' onclick=\"dpSelect('"+iso+"')\">" +d+"</div>";
+  }
+  var trailing=(7-(firstDay+daysInMonth)%7)%7;
+  for(var i=1;i<=trailing;i++){days+="<div class='dp-day other-month'>"+i+"</div>";}
+  days+="</div>";
+  var footer="<div class='dp-cal-footer'><button class='dp-btn-today' onclick='dpSelectToday()'>Heute</button><button class='dp-btn-clear' onclick='dpClear()'>Leeren</button></div>";
+  var cal=document.createElement("div");
+  cal.className="dp-cal";cal.id="dp-calendar";
+  cal.innerHTML=hdr+dow+days+footer;
+  var top=rect.bottom+window.scrollY+2;
+  var left=rect.left+window.scrollX;
+  if(left+250>window.innerWidth)left=window.innerWidth-255;
+  cal.style.top=top+"px";cal.style.left=left+"px";
+  document.body.appendChild(cal);
+  setTimeout(function(){document.addEventListener("click",dpOutsideClick,{once:true,capture:true});},50);
+}
+
+function dpOutsideClick(e){
+  var cal=document.getElementById("dp-calendar");
+  var srcId=dpState.id;
+  var srcEl=srcId?document.getElementById(srcId):null;
+  if(cal&&!cal.contains(e.target)&&(!srcEl||!srcEl.contains(e.target))){dpClose();}
+  else{setTimeout(function(){document.addEventListener("click",dpOutsideClick,{once:true,capture:true});},50);}
+}
+
+function dpPrev(){dpState.month--;if(dpState.month<0){dpState.month=11;dpState.year--;}dpRender();}
+function dpNext(){dpState.month++;if(dpState.month>11){dpState.month=0;dpState.year++;}dpRender();}
+
+function dpSelect(iso){
+  var id=dpState.id;
+  if(!id)return;
+  dpSetVal(id,iso);
+  dpClose();
+  dpTriggerById(id);
+}
+function dpSelectToday(){var n=new Date();dpSelect(toISO(n));}
+function dpClear(){var id=dpState.id;if(!id)return;document.getElementById(id).value="";dpClose();dpTriggerById(id);}
+
+function dpTriggerById(id){
+  if(id==="pStart"||id==="pEnd"){saveProjData();buildGantt();return;}
+  // For table row inputs
+  if(dpState._rowRef){
+    var ref=dpState._rowRef;
+    var iso=dpVal(ref.el.id||id);
+    ref.el.value=isoToDisp(iso);
+    rows[ref.ri][ref.f]=iso;
+    dpState._rowRef=null;
+    buildGantt();saveProjData();
+    return;
+  }
+}
+
+// ---
+//  INIT
+// ---
+function initApp(){
+  // Always load from cloud FIRST. Only fall back to local/demo if cloud is unreachable.
+  setSyncStatus("syncing","Verbinde mit Cloud...");
+  showPortfolio(); // show loading state immediately
+
+  sbGet(PORT_KEY,function(err,cloudPortfolio){
+    if(err){
+      // Cloud unreachable - use local data (or demo if also empty)
+      setSyncStatus("offline","Offline - lokale Daten");
+      if(portfolio.projects.length===0) createDemoIfNeeded(function(){renderProjects();});
+      else renderProjects();
+      return;
+    }
+
+    if(cloudPortfolio&&cloudPortfolio.projects&&cloudPortfolio.projects.length>0){
+      // --- Cloud has real data: always use it on new/empty device ---
+      var localHasRealData=portfolio.projects.length>0&&
+        !(portfolio.projects.length===1&&portfolio.projects[0].id==="demo_omv_001");
+
+      if(localHasRealData){
+        // Both have data - compare timestamps, take the newer one
+        var localMax=Math.max.apply(null,portfolio.projects.map(function(p){return p.created||0;}));
+        var cloudMax=Math.max.apply(null,cloudPortfolio.projects.map(function(p){return p.created||0;}));
+        if(localMax>cloudMax){
+          // Local is genuinely newer - push it up
+          pushAllToCloud();
+          return;
+        }
+      }
+
+      // Use cloud data
+      portfolio=cloudPortfolio;
+      localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+      sbGetAll(PROJ_KEY,function(err2,cloudRows){
+        if(!err2&&cloudRows){
+          cloudRows.forEach(function(row){
+            localStorage.setItem(row.key,JSON.stringify(row.value));
+          });
+        }
+        setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
+        renderProjects();
+      });
+
+    }else{
+      // Cloud is genuinely empty
+      if(portfolio.projects.length>0){
+        // Local has data - push it up to cloud
+        pushAllToCloud();
+      }else{
+        // Both empty - create demo project and push to cloud
+        createDemoIfNeeded(function(){
+          pushAllToCloud();
+          renderProjects();
+        });
+      }
+    }
+  });
+}
+
+function createDemoIfNeeded(cb){
+  var demoId="demo_omv_001";
+  var existing=null;
+  try{var _r=localStorage.getItem("omv_gantt_v3");if(_r)existing=JSON.parse(_r);}catch(e){}
+  portfolio.projects.push({id:demoId,name:"OMV Wasserstoff Elektrolyse",client:"OMV AG",
+    desc:"Befestigungstechnik fuer Elektrolyseanlage",projId:"PRJ-2026-001",location:"Wien, Oesterreich",
+    start:"2026-01-01",end:"2026-12-31",status:"active",color:"#378ADD",link:"",created:Date.now()});
+  var demoData;
+  if(existing&&existing.rows&&existing.rows.length>0){
+    demoData={rows:existing.rows,projectLink:existing.projectLink||"",
+      pStart:existing.pStart||"2026-01-01",pEnd:existing.pEnd||"2026-12-31",scale:existing.scale||"month"};
+  }else{
+    demoData={rows:[
+      {g:"CSA",gl:"",art:"Grating Fixing",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-05-31",m:"2026-03-15",pz:"",ls:"Offen",sf:"",uf:"85000"},
+      {g:"CSA",gl:"",art:"Primary Steel Baseplate",al:"",typ:"Planung",prio:"Medium",s:"2026-03-01",e:"2026-07-31",m:"2026-04-15",pz:"",ls:"In Bearbeitung",sf:"42000",uf:""},
+      {g:"E&I",gl:"",art:"Earthing/Bonding/Grounding",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-01-15",e:"2026-06-30",m:"2026-03-01",pz:"",ls:"Gewonnen",sf:"",uf:"120000"},
+      {g:"E&I",gl:"",art:"Electrical supports",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-07-31",m:"2026-03-20",pz:"",ls:"Verloren",sf:"",uf:"65000"},
+      {g:"Piping",gl:"",art:"Process Piping - Fastening",al:"",typ:"Ausfuehrung",prio:"High",s:"2026-02-15",e:"2026-06-30",m:"2026-04-01",pz:"",ls:"Offen",sf:"",uf:"95000"}
+    ],projectLink:"",pStart:"2026-01-01",pEnd:"2026-12-31",scale:"month"};
+  }
+  localStorage.setItem(PROJ_KEY+demoId,JSON.stringify(demoData));
+  localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+  if(cb)cb();
+}
+
+function loadFromCloud(){
+  setSyncStatus("syncing","Lade Daten...");
+  sbGet(PORT_KEY,function(err,cloudPortfolio){
+    if(err){setSyncStatus("offline","Offline - lokale Daten");return;}
+    if(cloudPortfolio&&cloudPortfolio.projects&&cloudPortfolio.projects.length>0){
+      portfolio=cloudPortfolio;
+      localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
+      sbGetAll(PROJ_KEY,function(err2,cloudRows){
+        if(!err2&&cloudRows){
+          cloudRows.forEach(function(row){localStorage.setItem(row.key,JSON.stringify(row.value));});
+        }
+        setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
+        if(!currentProjId)renderProjects();
+        else{loadProjData(currentProjId);buildTable();buildSumCards();buildGantt();}
+      });
+    }else{
+      setSyncStatus("ok","Cloud leer - lokale Daten");
+    }
+  });
+}
+
+function pushAllToCloud(){
+  setSyncStatus("syncing","Lade hoch...");
+  sbSet(PORT_KEY,portfolio,function(err){
+    if(err){setSyncStatus("error","Upload fehlgeschlagen");return;}
+    var ids=portfolio.projects.map(function(p){return p.id;});
+    var done=0;
+    if(ids.length===0){setSyncStatus("ok","Synchronisiert");renderProjects();return;}
+    ids.forEach(function(id){
+      var d=getProjData(id);
+      if(d){sbSet(PROJ_KEY+id,d,function(){done++;if(done===ids.length){setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));renderProjects();}});}
+      else{done++;if(done===ids.length){setSyncStatus("ok","Synchronisiert");renderProjects();}}
+    });
+  });
+}
+
+initApp();
+</script>
+</body>
+</html>
