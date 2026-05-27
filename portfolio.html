@@ -149,6 +149,27 @@ tr:hover td{background:#f9fbff;}
 .dp-cal-footer button{font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;}
 .dp-btn-today{background:#f0f7ff;color:#378ADD;border:1px solid #c0d8f0;}
 .dp-btn-clear{background:#fff;color:#888;border:1px solid #ddd;}
+
+/* Revenue Plan */
+.rev-table{border-collapse:collapse;width:100%;}
+.rev-table th{font-size:11px;font-weight:600;color:#555;padding:5px 8px;background:#f7f7f7;border-bottom:1.5px solid #ccc;white-space:nowrap;}
+.rev-table td{padding:4px 7px;border-bottom:0.5px solid #e5e5e5;font-size:11px;vertical-align:middle;}
+.rev-table tr:hover td{background:#f9fbff;}
+.rev-total td{font-weight:700;background:#e8f0ff!important;border-top:2px solid #378ADD;}
+/* Year revenue bar */
+.yr-bar-bg{background:#eee;border-radius:3px;height:8px;min-width:60px;position:relative;}
+.yr-bar-fill{height:100%;border-radius:3px;background:#378ADD;}
+/* Portfolio Revenue Timeline */
+.rev-timeline{overflow-x:auto;margin-bottom:1.5rem;}
+.rev-tl-table{border-collapse:collapse;font-size:11px;}
+.rev-tl-table th{padding:5px 10px;background:#f7f7f7;border:0.5px solid #ddd;font-weight:600;color:#555;white-space:nowrap;}
+.rev-tl-table td{padding:4px 10px;border:0.5px solid #eee;vertical-align:middle;}
+.rev-tl-table .sum-row td{font-weight:700;background:#e8f0ff!important;border-top:2px solid #378ADD;}
+.rev-tl-table .proj-row:hover td{background:#f5f8ff;}
+/* Project type tag */
+.ptype-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;background:#e8f0ff;color:#1a3a8a;}
+/* Filter pill active */
+.filter-pill-active{background:#378ADD!important;color:#fff!important;border-color:#378ADD!important;}
 </style>
 </head>
 <body>
@@ -166,6 +187,8 @@ tr:hover td{background:#f9fbff;}
     <div style="font-size:11px;color:#aaa;" id="lastSaved"></div>
   </div>
   <div class="global-cards" id="globalCards"></div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:1rem;">Umsatzplan nach Jahr</div>
+  <div class="rev-timeline" id="revTimeline"></div>
   <div class="filter-bar">
     <input type="text" id="filterText" placeholder="🔍 Projekt suchen…" oninput="renderProjects()">
     <select id="filterStatus" onchange="renderProjects()">
@@ -179,6 +202,12 @@ tr:hover td{background:#f9fbff;}
       <option value="created">Erstellt</option>
       <option value="start">Start</option>
       <option value="potential">Potential</option>
+    </select>
+    <select id="filterType" onchange="renderProjects()" style="font-size:11px;padding:4px 8px;border:0.5px solid #ccc;border-radius:4px;background:#fff;">
+      <option value="">Alle Projekttypen</option>
+    </select>
+    <select id="filterYear" onchange="renderProjects()" style="font-size:11px;padding:4px 8px;border:0.5px solid #ccc;border-radius:4px;background:#fff;">
+      <option value="">Alle Jahre</option>
     </select>
     <span style="font-size:11px;color:#888;" id="projCount"></span>
   </div>
@@ -198,9 +227,9 @@ tr:hover td{background:#f9fbff;}
 
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1.2rem;padding:8px 12px;background:#f8f9fa;border-radius:5px;border:0.5px solid #ddd;">
   <span style="font-size:12px;color:#666;font-weight:500;">Projektzeitraum:</span>
-  <div class="dp-wrap" id="dp-wrap-pStart" style="display:inline-block;position:relative;"><input type="text" id="pStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('pStart')"><span onclick="dpOpen('pStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div>
+  <input type="date" id="pStart" onchange="saveProjData();buildGantt();" style="width:130px;font-size:11px;padding:2px 5px;border:0.5px solid #aaa;border-radius:3px;">
   <span style="font-size:12px;color:#666;">bis</span>
-  <div class="dp-wrap" id="dp-wrap-pEnd" style="display:inline-block;position:relative;"><input type="text" id="pEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('pEnd')"><span onclick="dpOpen('pEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div>
+  <input type="date" id="pEnd" onchange="saveProjData();buildGantt();" style="width:130px;font-size:11px;padding:2px 5px;border:0.5px solid #aaa;border-radius:3px;">
   <span style="font-size:12px;color:#666;font-weight:500;margin-left:12px;">Skalierung:</span>
   <select id="scaleMode" onchange="buildGantt()" style="width:90px;">
     <option value="month">Monat</option><option value="week">Woche</option>
@@ -342,7 +371,26 @@ tr:hover td{background:#f9fbff;}
 </div>
 
 <!-- TABLE -->
-<div style="font-size:14px;font-weight:600;margin-bottom:8px;">Einträge</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;" class="no-print">
+  <div style="font-size:14px;font-weight:600;">Einträge</div>
+  <input type="text" id="tblFilterText" placeholder="🔍 Suchen…" oninput="buildTable()" style="font-size:11px;padding:3px 8px;border:0.5px solid #ccc;border-radius:4px;width:140px;">
+  <select id="tblFilterGewerk" onchange="buildTable()" style="font-size:11px;padding:3px 7px;border:0.5px solid #ccc;border-radius:4px;background:#fff;">
+    <option value="">Alle Gewerke</option>
+  </select>
+  <select id="tblFilterTyp" onchange="buildTable()" style="font-size:11px;padding:3px 7px;border:0.5px solid #ccc;border-radius:4px;background:#fff;">
+    <option value="">Alle Typen</option>
+    <option value="Planung">Planung</option>
+    <option value="Ausfuehrung">Ausführung</option>
+  </select>
+  <select id="tblFilterLS" onchange="buildTable()" style="font-size:11px;padding:3px 7px;border:0.5px solid #ccc;border-radius:4px;background:#fff;">
+    <option value="">Alle Status</option>
+    <option value="Offen">Offen</option>
+    <option value="In Bearbeitung">In Bearbeitung</option>
+    <option value="Gewonnen">Gewonnen</option>
+    <option value="Verloren">Verloren</option>
+  </select>
+  <button class="btn" onclick="clearTblFilters()" style="font-size:11px;padding:3px 8px;">✕ Filter</button>
+</div>
 <div style="overflow-x:auto;margin-bottom:1.5rem;">
 <table id="maintbl" style="border-collapse:collapse;min-width:1200px;width:100%;">
 <thead><tr>
@@ -363,6 +411,13 @@ tr:hover td{background:#f9fbff;}
 </table>
 </div>
 
+<div style="font-size:14px;font-weight:600;margin-bottom:8px;margin-top:1.5rem;display:flex;align-items:center;gap:10px;">Umsatzplan <button class="btn no-print" onclick="addRevRow()" style="font-size:11px;padding:2px 8px;">+ Jahr hinzufügen</button></div>
+<div style="overflow-x:auto;margin-bottom:1.5rem;">
+<table class="rev-table" id="revTbl" style="min-width:600px;">
+<thead><tr id="revTblHead"></tr></thead>
+<tbody id="revTblBody"></tbody>
+</table>
+</div>
 <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Zusammenfassung</div>
 <div id="sumCards" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;"></div>
 
@@ -403,12 +458,36 @@ tr:hover td{background:#f9fbff;}
       </select>
     </div>
   </div>
-  <div class="field"><label>Externer Link (URL)</label><input type="url" id="mLink" placeholder="https://…"></div>
+  <div class="grid2">
+    <div class="field"><label>Projekttyp</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select id="mTyp" style="flex:1;font-size:12px;padding:5px 8px;border:0.5px solid #bbb;border-radius:4px;background:#fff;"></select>
+        <button class="btn" onclick="manageProjectTypes()" style="font-size:10px;padding:3px 8px;white-space:nowrap;">Verwalten</button>
+      </div>
+    </div>
+    <div class="field"><label>Externer Link (URL)</label><input type="url" id="mLink" placeholder="https://…"></div>
+  </div>
   <input type="hidden" id="mEditId">
   <div class="modal-footer">
     <button class="btn" onclick="closeModal()">Abbrechen</button>
     <button class="btn btn-primary" onclick="saveProject()">Speichern</button>
     <style>.btn-primary{background:#378ADD;border-color:#378ADD;color:#fff;}.btn-primary:hover{background:#2a70c4;}</style>
+  </div>
+</div>
+</div>
+
+<!-- PROJECT TYPE MANAGEMENT MODAL -->
+<div class="modal-bg" id="ptypeBg" style="display:none;" onclick="if(event.target===this)closePtypeModal()">
+<div class="modal" style="width:400px;">
+  <h2>Projekttypen verwalten</h2>
+  <p style="font-size:11px;color:#888;margin-bottom:12px;">Typen werden in allen Projekten als Auswahlmoeglichkeit angeboten.</p>
+  <div id="ptypeList" style="margin-bottom:12px;max-height:200px;overflow-y:auto;"></div>
+  <div style="display:flex;gap:8px;">
+    <input type="text" id="ptypeNew" placeholder="Neuer Typ z.B. EPC, EPCM, Service…" style="flex:1;">
+    <button class="btn btn-primary" onclick="addProjectType()" style="white-space:nowrap;">+ Hinzufügen</button>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" onclick="closePtypeModal()">Fertig</button>
   </div>
 </div>
 </div>
@@ -598,7 +677,7 @@ function saveProjData(){
     var ps=dpGetISO("pStart");
     var pe=dpGetISO("pEnd");
     var scale=document.getElementById("scaleMode").value;
-    var projPayload={rows:rows,projectLink:projLink,pStart:ps,pEnd:pe,scale:scale};
+    var projPayload={rows:rows,projectLink:projLink,pStart:ps,pEnd:pe,scale:scale,revPlan:revPlan};
     localStorage.setItem(PROJ_KEY+currentProjId,JSON.stringify(projPayload));
     // Sync project data to cloud
     setSyncStatus("syncing","Synchronisiere...");
@@ -630,7 +709,10 @@ function loadProjData(id){
     dpSet("pEnd",pe||"");
     if(d.scale)document.getElementById("scaleMode").value=d.scale;
     rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
+    loadRevPlan(d);
   }else{
+    revPlan=[];
+    buildRevTable();
     var meta2=getProjMeta(id);
     dpSet("pStart",meta2?meta2.start||"":"");
     dpSet("pEnd",meta2?meta2.end||"":"");
@@ -643,7 +725,7 @@ function loadProjData(id){
       var localRows=(d?d.rows||[]:rows).length;
       var cloudRows=(cloudData.rows||[]).length;
       if(cloudRows!==localRows||JSON.stringify(cloudData)!==JSON.stringify(d)){
-        rows=cloudData.rows||[];projLink=cloudData.projectLink||"";
+        rows=cloudData.rows||[];projLink=cloudData.projectLink||"";revPlan=cloudData.revPlan||[];buildRevTable();
         var ps=cloudData.pStart||"",pe=cloudData.pEnd||"";
         if(ps)dpSet("pStart",ps);if(pe)dpSet("pEnd",pe);
         if(cloudData.scale)document.getElementById("scaleMode").value=cloudData.scale;
@@ -807,9 +889,14 @@ function renderProjects(){
   var ft=(document.getElementById("filterText").value||"").toLowerCase();
   var fs=document.getElementById("filterStatus").value;
   var sb=document.getElementById("sortBy").value;
+  var ftyp=(document.getElementById("filterType")||{value:""}).value||"";
+  var fyr=(document.getElementById("filterYear")||{value:""}).value||"";
   var list=portfolio.projects.filter(function(p){
     if(ft&&p.name.toLowerCase().indexOf(ft)<0&&(p.client||"").toLowerCase().indexOf(ft)<0)return false;
-    if(fs&&p.status!==fs)return false;return true;
+    if(fs&&p.status!==fs)return false;
+    if(ftyp&&(p.projType||'')!==ftyp)return false;
+    if(fyr){var _d=getProjData(p.id);var _hy=_d&&_d.revPlan&&_d.revPlan.some(function(r){return r.year===fyr;});if(!_hy)return false;}
+    return true;
   });
   list.sort(function(a,b){
     if(sb==="name")return a.name.localeCompare(b.name);
@@ -820,6 +907,9 @@ function renderProjects(){
   });
   document.getElementById("projCount").textContent=list.length+" Projekt"+(list.length!==1?"e":"");
   buildGlobalCards();
+  buildRevTimeline();
+  updateTypeFilter();
+  updateYearFilter();
   if(list.length===0){
     document.getElementById("projGrid").innerHTML='<div class="empty-state"><div class="es-icon">📋</div><p>Keine Projekte gefunden.<br>Klicke oben auf "+ Neues Projekt".</p></div>';
     return;
@@ -846,6 +936,7 @@ function renderProjects(){
     html+='</div></div>';
     html+='<div class="proj-card-body">';
     html+='<div class="proj-meta"><span class="meta-tag" style="background:'+sl.bg+';color:'+sl.col+';">'+sl.label+'</span>';
+    if(p.projType)html+='<span class="meta-tag ptype-tag">'+p.projType+'</span>';
     if(p.client)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">'+p.client+'</span>';
     if(p.location)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">📍'+p.location+'</span>';
     html+='</div>';
@@ -906,7 +997,7 @@ function showNewProject(){
   ["mName","mClient","mDesc","mId","mLocation","mLink"].forEach(function(id){document.getElementById(id).value="";});
   dpSet("mStart","");dpSet("mEnd","");var _ms=document.getElementById("mStart-iso");var _me=document.getElementById("mEnd-iso");if(_ms)_ms.value="";if(_me)_me.value="";
   document.getElementById("mStatus").value="planned";document.getElementById("mColor").value="#378ADD";
-  document.getElementById("mEditId").value="";document.getElementById("modalTitle").textContent="Neues Projekt";
+  document.getElementById("mEditId").value="";document.getElementById("modalTitle").textContent="Neues Projekt";fillTypeSel("mTyp","");
   document.getElementById("projModalBg").style.display="flex";
   setTimeout(function(){document.getElementById("mName").focus();},80);
 }
@@ -924,7 +1015,7 @@ function editProject(id){
   if(msi)msi.value=p.start||"";
   if(mei)mei.value=p.end||"";
   document.getElementById("mStatus").value=p.status||"planned";
-  document.getElementById("mColor").value=p.color||"#378ADD";document.getElementById("mLink").value=p.link||"";
+  document.getElementById("mColor").value=p.color||"#378ADD";document.getElementById("mLink").value=p.link||"";fillTypeSel("mTyp",p.projType||"");
   document.getElementById("mEditId").value=id;document.getElementById("projModalBg").style.display="flex";
 }
 function closeModal(){document.getElementById("projModalBg").style.display="none";}
@@ -941,26 +1032,62 @@ function saveProject(){
     desc:document.getElementById("mDesc").value.trim(),projId:document.getElementById("mId").value.trim(),
     location:document.getElementById("mLocation").value.trim(),start:startISO,end:endISO,
     status:document.getElementById("mStatus").value,
-    color:document.getElementById("mColor").value,link:document.getElementById("mLink").value.trim()};
+    color:document.getElementById("mColor").value,link:document.getElementById("mLink").value.trim(),
+    projType:document.getElementById("mTyp")?document.getElementById("mTyp").value||'':''};
   if(editId){
     var idx=portfolio.projects.findIndex(function(x){return x.id===editId;});
     if(idx>=0){
       proj.id=editId;proj.created=portfolio.projects[idx].created;portfolio.projects[idx]=proj;
-      // Also sync dates into the gantt data so Zeitplan stays in sync
-      var gd=getProjData(editId);
-      if(gd){
-        if(startISO)gd.pStart=startISO;
-        if(endISO)gd.pEnd=endISO;
-        localStorage.setItem(PROJ_KEY+editId,JSON.stringify(gd));
+      savePortfolio();closeModal();renderProjects();showToast("Projekt aktualisiert.");
+      // Fetch latest gantt data from cloud to preserve ALL existing values (rows, revPlan etc.)
+      var _startISO=startISO,_endISO=endISO,_editId=editId;
+      function applyRevPlanUpdate(gd){
+        gd=gd||{rows:[],projectLink:"",scale:"month",revPlan:[]};
+        if(_startISO)gd.pStart=_startISO;
+        if(_endISO)gd.pEnd=_endISO;
+        var sy=_startISO?parseInt(_startISO.slice(0,4)):0;
+        var ey=_endISO?parseInt(_endISO.slice(0,4)):0;
+        if(sy&&ey&&!isNaN(sy)&&!isNaN(ey)&&ey>=sy){
+          // Use in-memory revPlan if project is open, otherwise use stored
+          var oldPlan=(currentProjId===_editId&&revPlan.length>0)?revPlan:(gd.revPlan||[]);
+          var oldByYear={};
+          oldPlan.forEach(function(r){oldByYear[r.year]=r;});
+          var newPlan=[];
+          for(var yy=sy;yy<=ey;yy++){
+            var ex=oldByYear[String(yy)]||{};
+            newPlan.push({year:String(yy),spez:ex.spez||"",pot:ex.pot||"",ums:ex.ums||"",ent:ex.ent||""});
+          }
+          gd.revPlan=newPlan;
+          if(currentProjId===_editId){
+            revPlan=newPlan;
+            buildRevTable();
+            dpSet("pStart",_startISO);
+            dpSet("pEnd",_endISO);
+            buildGantt();
+          }
+        }
+        localStorage.setItem(PROJ_KEY+_editId,JSON.stringify(gd));
+        sbSet(PROJ_KEY+_editId,gd,null);
       }
+      sbGet(PROJ_KEY+_editId,function(err,cloudGd){
+        applyRevPlanUpdate(!err&&cloudGd?cloudGd:getProjData(_editId));
+      });
     }
+    return;
   }else{
     proj.id=uid();proj.created=Date.now();portfolio.projects.push(proj);
     var newProjData={rows:[],projectLink:"",pStart:startISO||"",pEnd:endISO||"",scale:"month"};
     localStorage.setItem(PROJ_KEY+proj.id,JSON.stringify(newProjData));
     sbSet(PROJ_KEY+proj.id,newProjData,null);
   }
-  savePortfolio();closeModal();renderProjects();showToast(editId?"Projekt aktualisiert.":"Projekt erstellt.");
+  savePortfolio();closeModal();
+  // If editing the currently open project, refresh timeline inputs too
+  if(editId&&currentProjId===editId){
+    dpSet("pStart",startISO||"");
+    dpSet("pEnd",endISO||"");
+    buildGantt();
+  }
+  renderProjects();showToast(editId?"Projekt aktualisiert.":"Projekt erstellt.");
 }
 function deleteProject(id){
   var p=getProjMeta(id);if(!p)return;
@@ -1232,9 +1359,42 @@ function onTblChange(t){
   saveProjData();
 }
 
+function clearTblFilters(){
+  ["tblFilterText","tblFilterGewerk","tblFilterTyp","tblFilterLS"].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value="";
+  });
+  buildTable();
+}
 function buildTable(){
+  // Refresh gewerk filter options
+  var gSel=document.getElementById("tblFilterGewerk");
+  if(gSel){
+    var curG=gSel.value;
+    var seen={};
+    gSel.innerHTML='<option value="">Alle Gewerke</option>';
+    rows.forEach(function(r){
+      if(!seen[r.g]){seen[r.g]=1;var o=document.createElement("option");o.value=r.g;o.textContent=r.g;if(r.g===curG)o.selected=true;gSel.appendChild(o);}
+    });
+  }
+  // Apply filters
+  var ftxt=(document.getElementById("tblFilterText")||{value:""}).value.toLowerCase();
+  var fgew=(document.getElementById("tblFilterGewerk")||{value:""}).value;
+  var ftyp=(document.getElementById("tblFilterTyp")||{value:""}).value;
+  var fls=(document.getElementById("tblFilterLS")||{value:""}).value;
+  var filtered=rows.filter(function(r,i){
+    r._origIdx=i; // keep original index for editing
+    if(ftxt&&r.art.toLowerCase().indexOf(ftxt)<0&&r.g.toLowerCase().indexOf(ftxt)<0)return false;
+    if(fgew&&r.g!==fgew)return false;
+    if(ftyp&&r.typ!==ftyp)return false;
+    if(fls&&r.ls!==fls)return false;
+    return true;
+  });
   var sums=calcSums();var html="",lastG="";
-  rows.forEach(function(r,i){
+  if(filtered.length===0){
+    document.getElementById("tbody").innerHTML='<tr><td colspan="12" style="text-align:center;padding:20px;color:#aaa;font-size:12px;">Keine Einträge für diesen Filter.</td></tr>';
+    return;
+  }
+  filtered.forEach(function(r,fi){var i=r._origIdx;
     var c=gc(r.g),bg=i%2===0?"":"background:#fafffe;";
     html+='<tr style="'+bg+'">';
     if(r.g!==lastG){
@@ -1454,13 +1614,19 @@ var dpState={id:null,year:0,month:0,_rowRef:null};
 function dpVal(id){
   var el=document.getElementById(id);
   if(!el)return"";
+  if(el.type==="date")return el.value||""; // already ISO
   return dispToIso(el.value||"");
 }
 function dpGetISO(id){return dpVal(id);}
 function dpSetVal(id,iso){
   var el=document.getElementById(id);
   if(!el)return;
-  el.value=isoToDisp(iso||"");
+  if(el.type==="date"){
+    // Native date input needs ISO format
+    el.value=iso||"";
+  }else{
+    el.value=isoToDisp(iso||"");
+  }
   // Also store ISO in hidden input if it exists
   var hidden=document.getElementById(id+"-iso");
   if(hidden)hidden.value=iso||"";
@@ -1563,6 +1729,357 @@ function dpTriggerById(id){
 }
 
 // ---
+//  PROJECT TYPES
+// ---
+var PT_KEY = "omv_project_types_v1";
+
+function loadProjectTypes(){
+  try{var r=localStorage.getItem(PT_KEY);if(r)return JSON.parse(r);}catch(e){}
+  return["EPC","EPCM","Service","Rahmenvertrag","Einzelauftrag"];
+}
+function saveProjectTypes(types){
+  localStorage.setItem(PT_KEY,JSON.stringify(types));
+  sbSet(PT_KEY,types,null);
+}
+var projectTypes=loadProjectTypes();
+// Sync project types from cloud
+sbGet(PT_KEY,function(err,cloudTypes){
+  if(!err&&cloudTypes&&Array.isArray(cloudTypes)){
+    projectTypes=cloudTypes;
+    localStorage.setItem(PT_KEY,JSON.stringify(cloudTypes));
+    updateTypeFilter();
+  }
+});
+
+function fillTypeSel(selId,current){
+  var s=document.getElementById(selId);if(!s)return;
+  s.innerHTML='<option value="">-- Kein Typ --</option>';
+  projectTypes.forEach(function(t){
+    var o=document.createElement("option");o.value=t;o.textContent=t;
+    if(t===current)o.selected=true;s.appendChild(o);
+  });
+}
+function manageProjectTypes(){
+  renderPtypeList();
+  document.getElementById("ptypeBg").style.display="flex";
+}
+function closePtypeModal(){
+  document.getElementById("ptypeBg").style.display="none";
+  // Refresh the select in modal
+  fillTypeSel("mTyp",document.getElementById("mTyp").value);
+  // Refresh filters
+  updateTypeFilter();
+  renderProjects();
+}
+function renderPtypeList(){
+  var html="";
+  projectTypes.forEach(function(t,i){
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #eee;">'
+      +'<span style="flex:1;font-size:12px;">'+t+'</span>'
+      +'<button onclick="removeProjectType('+i+')" style="font-size:10px;padding:2px 6px;border:0.5px solid #e24b4a;border-radius:3px;background:transparent;color:#e24b4a;cursor:pointer;">Entfernen</button>'
+      +'</div>';
+  });
+  if(!projectTypes.length)html='<p style="font-size:11px;color:#aaa;">Noch keine Typen definiert.</p>';
+  document.getElementById("ptypeList").innerHTML=html;
+}
+function addProjectType(){
+  var inp=document.getElementById("ptypeNew");
+  var val=inp.value.trim();
+  if(!val)return;
+  if(projectTypes.indexOf(val)>=0){showToast("Typ existiert bereits.");return;}
+  projectTypes.push(val);
+  saveProjectTypes(projectTypes);
+  inp.value="";
+  renderPtypeList();
+  updateTypeFilter();
+}
+function removeProjectType(i){
+  projectTypes.splice(i,1);
+  saveProjectTypes(projectTypes);
+  renderPtypeList();
+  updateTypeFilter();
+}
+function updateTypeFilter(){
+  var sel=document.getElementById("filterType");if(!sel)return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">Alle Projekttypen</option>';
+  projectTypes.forEach(function(t){
+    var o=document.createElement("option");o.value=t;o.textContent=t;
+    if(t===cur)o.selected=true;sel.appendChild(o);
+  });
+}
+function updateYearFilter(){
+  var sel=document.getElementById("filterYear");if(!sel)return;
+  var cur=sel.value;
+  // Collect all years from all project revenue plans
+  var years={};
+  portfolio.projects.forEach(function(p){
+    var d=getProjData(p.id);
+    if(d&&d.revPlan){
+      d.revPlan.forEach(function(r){if(r.year)years[r.year]=1;});
+    }
+    // Also from project start/end year
+    if(p.start)years[p.start.slice(0,4)]=1;
+    if(p.end)years[p.end.slice(0,4)]=1;
+  });
+  var ylist=Object.keys(years).sort();
+  sel.innerHTML='<option value="">Alle Jahre</option>';
+  ylist.forEach(function(y){
+    var o=document.createElement("option");o.value=y;o.textContent=y;
+    if(y===cur)o.selected=true;sel.appendChild(o);
+  });
+}
+
+// ---
+//  REVENUE PLAN (per project) - MANUAL
+// ---
+// revPlan: [{year, spez, pot, ums, ent}]
+
+var revPlan=[];
+
+function loadRevPlan(d){
+  revPlan=(d&&d.revPlan)?JSON.parse(JSON.stringify(d.revPlan)):[];
+  // Migrate old format: uf+status -> pot/ums/ent
+  revPlan.forEach(function(r){
+    if(r.uf!==undefined&&r.status!==undefined){
+      var v=r.uf||"";
+      if(r.status==="Umsatz"){r.ums=r.ums||v;}
+      else if(r.status==="Entgangen"){r.ent=r.ent||v;}
+      else{r.pot=r.pot||v;}
+      delete r.uf; delete r.status;
+    }
+    r.spez=r.spez||"";r.pot=r.pot||"";r.ums=r.ums||"";r.ent=r.ent||"";
+  });
+  buildRevTable();
+}
+
+function addRevRow(){
+  var yr=new Date().getFullYear();
+  if(revPlan.length>0){
+    var maxY=Math.max.apply(null,revPlan.map(function(r){return parseInt(r.year)||0;}));
+    yr=maxY+1;
+  }
+  revPlan.push({year:String(yr),spez:"",pot:"",ums:"",ent:""});
+  buildRevTable();
+  saveProjData();
+}
+
+function delRevRow(i){
+  revPlan.splice(i,1);
+  buildRevTable();
+  saveProjData();
+}
+
+function rebuildRevPlanYears(){
+  // No-op in manual mode - just save
+  saveProjData();
+}
+
+
+
+function buildRevTable(){
+  var hdr=document.getElementById("revTblHead");
+  var bod=document.getElementById("revTblBody");
+  if(!hdr||!bod)return;
+
+  hdr.innerHTML="<th style='width:65px;text-align:center;'>Jahr</th>"
+    +"<th style='text-align:right;color:#555;'>Spezifikation (EUR)</th>"
+    +"<th style='text-align:right;color:#1a3a8a;'>Potential (EUR)</th>"
+    +"<th style='text-align:right;color:#2a6010;'>Umsatz (EUR)</th>"
+    +"<th style='text-align:right;color:#a32d2d;'>Entgangen (EUR)</th>"
+    +"<th class='no-print' style='width:30px;'></th>";
+
+  var totSpez=0,totPot=0,totUms=0,totEnt=0;
+  var rows_html="";
+
+  function eurInp(ri,rf,val,col){
+    return "<input type='text' class='rev-inp rev-eur' data-ri='"+ri+"' data-rf='"+rf+"' value='"
+      +fmtEur(val)+"' style='width:100%;text-align:right;font-size:11px;"
+      +"padding:2px 4px;border:0.5px solid #ddd;border-radius:3px;"
+      +(col?"color:"+col+";":"")+"'>";
+  }
+
+  revPlan.forEach(function(r,i){
+    var sv=fmtEurRaw(r.spez),pv=fmtEurRaw(r.pot),uv=fmtEurRaw(r.ums),ev=fmtEurRaw(r.ent);
+    totSpez+=sv;totPot+=pv;totUms+=uv;totEnt+=ev;
+    rows_html+="<tr style='"+(i%2?"background:#fafffe;":"")+"'>"
+      +"<td style='text-align:center;'><input type='text' class='rev-inp' data-ri='"+i+"' data-rf='year' value='"+r.year+"' style='width:55px;text-align:center;font-size:11px;font-weight:600;border:0.5px solid #ddd;border-radius:3px;padding:2px 4px;'></td>"
+      +"<td>"+eurInp(i,"spez",r.spez,"")+"</td>"
+      +"<td>"+eurInp(i,"pot",r.pot,"#1a3a8a")+"</td>"
+      +"<td>"+eurInp(i,"ums",r.ums,"#2a6010")+"</td>"
+      +"<td>"+eurInp(i,"ent",r.ent,"#a32d2d")+"</td>"
+      +"<td class='no-print' style='text-align:center;'><button onclick='delRevRow("+i+")' style='font-size:11px;padding:2px 5px;border:0.5px solid #e24b4a;border-radius:3px;background:transparent;color:#e24b4a;cursor:pointer;'>&#x2715;</button></td>"
+      +"</tr>";
+  });
+
+  if(!revPlan.length){
+    rows_html="<tr><td colspan='6' style='text-align:center;color:#aaa;padding:10px;font-size:11px;'>Kein Umsatzplan vorhanden. Klicke &quot;+ Jahr hinzufügen&quot;.</td></tr>";
+  } else {
+    rows_html+="<tr style='background:#f0f4ff;font-weight:700;border-top:2px solid #378ADD;'>"
+      +"<td style='text-align:center;font-size:11px;'>Gesamt</td>"
+      +"<td style='text-align:right;font-size:11px;color:#555;'>"+fmtEur(totSpez)+"</td>"
+      +"<td style='text-align:right;font-size:11px;color:#1a3a8a;'>"+fmtEur(totPot)+"</td>"
+      +"<td style='text-align:right;font-size:11px;color:#2a6010;'>"+fmtEur(totUms)+"</td>"
+      +"<td style='text-align:right;font-size:11px;color:#a32d2d;'>"+fmtEur(totEnt)+"</td>"
+      +"<td class='no-print'></td>"
+      +"</tr>";
+  }
+  bod.innerHTML=rows_html;
+
+  // Attach event listeners
+  bod.querySelectorAll(".rev-inp").forEach(function(inp){
+    inp.addEventListener("change",function(){
+      var ri=parseInt(this.getAttribute("data-ri"));
+      var rf=this.getAttribute("data-rf");
+      revPlan[ri][rf]=this.value;
+      buildRevTable();saveProjData();
+    });
+    inp.addEventListener("blur",function(){this.value=fmtEur(this.value);});
+  });
+}
+
+
+
+// ---
+//  PORTFOLIO REVENUE TIMELINE
+// ---
+function buildRevTimeline(){
+  var el=document.getElementById("revTimeline");if(!el)return;
+  var ft=(document.getElementById("filterText")||{}).value||"";
+  var fs=(document.getElementById("filterStatus")||{}).value||"";
+  var ftyp=(document.getElementById("filterType")||{}).value||"";
+  var fyr=(document.getElementById("filterYear")||{}).value||"";
+
+  var projList=portfolio.projects.filter(function(p){
+    if(ft&&p.name.toLowerCase().indexOf(ft.toLowerCase())<0&&(p.client||"").toLowerCase().indexOf(ft.toLowerCase())<0)return false;
+    if(fs&&p.status!==fs)return false;
+    if(ftyp&&(p.projType||"")!==ftyp)return false;
+    return true;
+  });
+
+  // Collect years from revPlans of filtered projects
+  var yearSet={};
+  projList.forEach(function(p){
+    var d=getProjData(p.id);
+    if(d&&d.revPlan){d.revPlan.forEach(function(r){if(r.year)yearSet[r.year]=1;});}
+  });
+  var years=Object.keys(yearSet).sort();
+  if(fyr)years=years.filter(function(y){return y===fyr;});
+
+  if(!years.length||!projList.length){
+    el.innerHTML='<p style="font-size:11px;color:#aaa;padding:8px 0;">Noch kein Umsatzplan eingetragen.</p>';return;
+  }
+
+  // Compute max value per year for column width scaling
+  var maxValByYear={};
+  years.forEach(function(y){maxValByYear[y]=0;});
+  projList.forEach(function(p){
+    var d=getProjData(p.id);
+    var rp=(d&&d.revPlan)||[];
+    rp.forEach(function(r){
+      if(!r.year||years.indexOf(r.year)<0)return;
+      var tot=fmtEurRaw(r.pot)+fmtEurRaw(r.ums)+fmtEurRaw(r.ent);
+      if(tot>maxValByYear[r.year])maxValByYear[r.year]=tot;
+    });
+  });
+
+  // Build compact table: each project = 3 rows (Potential/Umsatz/Entgangen)
+  // Columns: Projekt+Typ label | year... | Gesamt
+  var styles={
+    pot:{label:"Potential",col:"#1a3a8a",bg:"#f0f4ff"},
+    ums:{label:"Umsatz",col:"#2a6010",bg:"#f0faf4"},
+    ent:{label:"Entgangen",col:"#a32d2d",bg:"#fff4f4"}
+  };
+  var keys=["pot","ums","ent"];
+
+  var html='<table style="border-collapse:collapse;font-size:11px;">';
+
+  // Header row
+  html+='<thead><tr>'
+    +'<th style="padding:4px 8px;background:#f7f7f7;border-bottom:1.5px solid #ccc;min-width:140px;text-align:left;">Projekt</th>'
+    +'<th style="padding:4px 8px;background:#f7f7f7;border-bottom:1.5px solid #ccc;font-size:10px;color:#555;">Wert</th>';
+  years.forEach(function(y){
+    html+='<th style="padding:4px 10px;background:#f7f7f7;border-bottom:1.5px solid #ccc;text-align:right;white-space:nowrap;">'+y+'</th>';
+  });
+  html+='<th style="padding:4px 10px;background:#f0f4ff;border-bottom:1.5px solid #378ADD;text-align:right;white-space:nowrap;border-left:2px solid #378ADD;">Gesamt</th>'
+    +'</tr></thead><tbody>';
+
+  // Grand totals
+  var grandTot={pot:0,ums:0,ent:0};
+  var yearTot={};
+  years.forEach(function(y){yearTot[y]={pot:0,ums:0,ent:0};});
+
+  projList.forEach(function(p,pi){
+    var d=getProjData(p.id);
+    var rp=(d&&d.revPlan)||[];
+    var byYear={};rp.forEach(function(r){if(r.year)byYear[r.year]=r;});
+
+    var projTot={pot:0,ums:0,ent:0};
+    years.forEach(function(y){
+      var r=byYear[y];
+      if(!r)return;
+      projTot.pot+=fmtEurRaw(r.pot);
+      projTot.ums+=fmtEurRaw(r.ums);
+      projTot.ent+=fmtEurRaw(r.ent);
+      yearTot[y].pot+=fmtEurRaw(r.pot);
+      yearTot[y].ums+=fmtEurRaw(r.ums);
+      yearTot[y].ent+=fmtEurRaw(r.ent);
+    });
+    grandTot.pot+=projTot.pot;grandTot.ums+=projTot.ums;grandTot.ent+=projTot.ent;
+
+    var hasAny=projTot.pot||projTot.ums||projTot.ent;
+    if(!hasAny)return; // skip projects with no revenue plan values
+
+    var dot='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(p.color||"#378ADD")+';margin-right:4px;vertical-align:middle;"></span>';
+    var typTag=p.projType?'<span style="font-size:9px;padding:1px 5px;border-radius:8px;background:#e8f0ff;color:#1a3a8a;margin-left:4px;">'+p.projType+'</span>':'';
+    var pLink='<a href="#" onclick="showProject(\''+(p.id)+'\');return false;" style="color:#1a2a4a;text-decoration:none;font-weight:500;">'+dot+p.name+'</a>'+typTag;
+
+    // Add separator before each project (except first)
+    if(pi>0){
+      html+='<tr><td colspan="'+(2+years.length+1)+'" style="height:3px;background:#f0f0f0;padding:0;"></td></tr>';
+    }
+
+    keys.forEach(function(k,ki){
+      var s=styles[k];
+      var rowBg=ki===0?"":""; // subtle alternating handled per cell
+      html+='<tr style="background:'+s.bg+';">';
+      if(ki===0){
+        // Project label spans all 3 rows
+        html+='<td rowspan="3" style="padding:4px 8px;vertical-align:middle;border-right:1px solid #eee;white-space:nowrap;">'+pLink+'</td>';
+      }
+      html+='<td style="padding:3px 8px;font-size:10px;font-weight:600;color:'+s.col+';white-space:nowrap;border-right:1px solid #eee;">'+s.label+'</td>';
+      years.forEach(function(y){
+        var r=byYear[y];
+        var v=r?fmtEurRaw(r[k]):0;
+        html+='<td style="padding:3px 10px;text-align:right;white-space:nowrap;color:'+(v?s.col:"#ddd")+';font-weight:'+(v?"600":"400")+';">'+(v?fmtEurK(v):'—')+'</td>';
+      });
+      var tot=projTot[k];
+      html+='<td style="padding:3px 10px;text-align:right;white-space:nowrap;font-weight:700;color:'+(tot?s.col:"#ddd")+';border-left:2px solid #378ADD;">'+(tot?fmtEurK(tot):'—')+'</td>';
+      html+='</tr>';
+    });
+  });
+
+  // Subtotal rows per category
+  html+='<tr><td colspan="'+(2+years.length+1)+'" style="height:4px;background:#dde3ef;padding:0;"></td></tr>';
+  keys.forEach(function(k){
+    var s=styles[k];
+    html+='<tr style="background:'+s.bg+';font-weight:700;">'
+      +'<td style="padding:4px 8px;font-weight:700;color:'+s.col+';">Gesamt</td>'
+      +'<td style="padding:3px 8px;font-size:10px;font-weight:700;color:'+s.col+';border-right:1px solid #eee;">'+s.label+'</td>';
+    years.forEach(function(y){
+      var v=yearTot[y][k];
+      html+='<td style="padding:3px 10px;text-align:right;font-weight:700;color:'+(v?s.col:"#bbb")+';white-space:nowrap;">'+(v?fmtEurK(v):'—')+'</td>';
+    });
+    html+='<td style="padding:3px 10px;text-align:right;font-weight:700;color:'+(grandTot[k]?s.col:"#bbb")+';border-left:2px solid #378ADD;white-space:nowrap;">'+(grandTot[k]?fmtEurK(grandTot[k]):'—')+'</td>';
+    html+='</tr>';
+  });
+
+  html+='</tbody></table>';
+  el.innerHTML=html;
+}
+
+
+// ---
 //  INIT
 // ---
 function initApp(){
@@ -1582,7 +2099,7 @@ function initApp(){
     if(cloudPortfolio&&cloudPortfolio.projects&&cloudPortfolio.projects.length>0){
       // --- Cloud has real data: always use it on new/empty device ---
       var localHasRealData=portfolio.projects.length>0&&
-        !(portfolio.projects.length===1&&portfolio.projects[0].id==="demo_omv_001");
+        !(portfolio.projects.length===1&&portfolio.projects[0].id==="mphkd6bj22uh");
 
       if(localHasRealData){
         // Both have data - compare timestamps, take the newer one
@@ -1625,26 +2142,12 @@ function initApp(){
 }
 
 function createDemoIfNeeded(cb){
-  var demoId="demo_omv_001";
-  var existing=null;
-  try{var _r=localStorage.getItem("omv_gantt_v3");if(_r)existing=JSON.parse(_r);}catch(e){}
-  portfolio.projects.push({id:demoId,name:"OMV Wasserstoff Elektrolyse",client:"OMV AG",
-    desc:"Befestigungstechnik fuer Elektrolyseanlage",projId:"PRJ-2026-001",location:"Wien, Oesterreich",
-    start:"2026-01-01",end:"2026-12-31",status:"active",color:"#378ADD",link:"",created:Date.now()});
-  var demoData;
-  if(existing&&existing.rows&&existing.rows.length>0){
-    demoData={rows:existing.rows,projectLink:existing.projectLink||"",
-      pStart:existing.pStart||"2026-01-01",pEnd:existing.pEnd||"2026-12-31",scale:existing.scale||"month"};
-  }else{
-    demoData={rows:[
-      {g:"CSA",gl:"",art:"Grating Fixing",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-05-31",m:"2026-03-15",pz:"",ls:"Offen",sf:"",uf:"85000"},
-      {g:"CSA",gl:"",art:"Primary Steel Baseplate",al:"",typ:"Planung",prio:"Medium",s:"2026-03-01",e:"2026-07-31",m:"2026-04-15",pz:"",ls:"In Bearbeitung",sf:"42000",uf:""},
-      {g:"E&I",gl:"",art:"Earthing/Bonding/Grounding",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-01-15",e:"2026-06-30",m:"2026-03-01",pz:"",ls:"Gewonnen",sf:"",uf:"120000"},
-      {g:"E&I",gl:"",art:"Electrical supports",al:"",typ:"Ausfuehrung",prio:"Highest",s:"2026-02-01",e:"2026-07-31",m:"2026-03-20",pz:"",ls:"Verloren",sf:"",uf:"65000"},
-      {g:"Piping",gl:"",art:"Process Piping - Fastening",al:"",typ:"Ausfuehrung",prio:"High",s:"2026-02-15",e:"2026-06-30",m:"2026-04-01",pz:"",ls:"Offen",sf:"",uf:"95000"}
-    ],projectLink:"",pStart:"2026-01-01",pEnd:"2026-12-31",scale:"month"};
-  }
-  localStorage.setItem(PROJ_KEY+demoId,JSON.stringify(demoData));
+  var demoId="mphkd6bj22uh";
+  var m={"id": "mphkd6bj22uh", "end": "2026-12-31", "desc": "Befestigungstechnik fuer Elektrolyseanlage", "link": "", "name": "VORLAGE", "color": "#378ADD", "start": "2026-01-01", "client": "Muster", "projId": "MUSTER", "status": "active", "created": 1779493300543, "location": "Wien, Oesterreich"};
+  m.created=m.created||Date.now();
+  portfolio.projects.push(m);
+  var d={"rows": [{"e": "2026-05-31", "g": "Brandschutz", "m": "2026-03-15", "s": "2026-02-01", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "Rohrabschottungen Planung", "typ": "Planung", "prio": "Medium"}, {"e": "2026-07-31", "g": "Brandschutz", "m": "2026-04-15", "s": "2026-03-01", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "Rohrleitung Abschottung", "typ": "Ausfuehrung", "prio": "Medium"}, {"e": "2026-05-31", "g": "HKS", "m": "2026-03-15", "s": "2026-02-01", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "Rohrleitungsplanung", "typ": "Planung", "prio": "Medium"}, {"e": "2026-07-31", "g": "HKS", "m": "2026-04-15", "s": "2026-03-01", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "Rohrleitung Installation", "typ": "Ausfuehrung", "prio": "Medium"}, {"e": "2026-06-30", "g": "L\\u00fcftung", "m": "2026-04-01", "s": "2026-02-15", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "L\\u00fcftungsplanung", "typ": "Planung", "prio": "Medium"}, {"e": "2026-06-30", "g": "L\\u00fcftung", "m": "2026-04-01", "s": "2026-02-15", "al": "", "gl": "", "ls": "", "pz": "", "sf": "", "uf": "", "art": "L\\u00fcftung Installation", "typ": "Ausfuehrung", "prio": "Medium"}], "projectLink": "", "pStart": "2026-01-01", "pEnd": "2026-12-31", "scale": "month", "revPlan": []};
+  localStorage.setItem(PROJ_KEY+demoId,JSON.stringify(d));
   localStorage.setItem(PORT_KEY,JSON.stringify(portfolio));
   if(cb)cb();
 }
