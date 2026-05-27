@@ -443,8 +443,8 @@ tr:hover td{background:#f9fbff;}
     <div class="field"><label>Standort / Region</label><input type="text" id="mLocation" placeholder="z.B. Wien"></div>
   </div>
   <div class="grid2">
-    <div class="field"><label>Start</label><div class="dp-wrap" id="dp-wrap-mStart" style="display:inline-block;position:relative;"><input type="hidden" id="mStart-iso"><input type="text" id="mStart" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('mStart')"><span onclick="dpOpen('mStart')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
-    <div class="field"><label>Ende (geplant)</label><div class="dp-wrap" id="dp-wrap-mEnd" style="display:inline-block;position:relative;"><input type="hidden" id="mEnd-iso"><input type="text" id="mEnd" class="dp-input" readonly placeholder="TT.MM.JJJJ" style="width:118px;cursor:pointer;background:#fff;" onclick="dpOpen('mEnd')"><span onclick="dpOpen('mEnd')" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;pointer-events:none;">📅</span></div></div>
+    <div class="field"><label>Start</label><input type="date" id="mStart" onchange="mStartVal=this.value" style="width:100%;font-size:12px;padding:5px 8px;border:0.5px solid #bbb;border-radius:4px;"></div>
+    <div class="field"><label>Ende</label><input type="date" id="mEnd" onchange="mEndVal=this.value" style="width:100%;font-size:12px;padding:5px 8px;border:0.5px solid #bbb;border-radius:4px;"></div>
   </div>
   <div class="grid2">
     <div class="field"><label>Status</label>
@@ -524,6 +524,7 @@ tr:hover td{background:#f9fbff;}
 //  CONSTANTS & STATE
 // ---
 var PORT_KEY="omv_portfolio_v1";
+var mStartVal="",mEndVal=""; // capture modal date values immediately on change
 var PROJ_KEY="omv_gantt_proj_";
 
 // --- Supabase Cloud Sync ---
@@ -699,36 +700,37 @@ function saveProjData(){
 function loadProjData(id){
   // First load local cache, then refresh from cloud in background
   var d=getProjData(id);
+  var meta=getProjMeta(id);
   rows=[];projLink="";
+  // Portfolio meta dates are ALWAYS the most current (updated synchronously on save)
+  // Gantt pStart/pEnd is only used when meta has no dates
+  var ps=(meta&&meta.start)?meta.start:(d?d.pStart:"");
+  var pe=(meta&&meta.end)?meta.end:(d?d.pEnd:"");
+  dpSet("pStart",ps||"");
+  dpSet("pEnd",pe||"");
   if(d){
     rows=d.rows||[];projLink=d.projectLink||"";
-    var meta=getProjMeta(id);
-    var ps=d.pStart||(meta?meta.start:"");
-    var pe=d.pEnd||(meta?meta.end:"");
-    dpSet("pStart",ps||"");
-    dpSet("pEnd",pe||"");
     if(d.scale)document.getElementById("scaleMode").value=d.scale;
     rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
     loadRevPlan(d);
   }else{
     revPlan=[];
     buildRevTable();
-    var meta2=getProjMeta(id);
-    dpSet("pStart",meta2?meta2.start||"":"");
-    dpSet("pEnd",meta2?meta2.end||"":"");
   }
-  // Background refresh from cloud
+  // Background refresh from cloud (rows/scale only - dates always from portfolio meta)
   sbGet(PROJ_KEY+id,function(err,cloudData){
     if(!err&&cloudData&&currentProjId===id){
       localStorage.setItem(PROJ_KEY+id,JSON.stringify(cloudData));
-      // Reload if cloud data is newer (check row count or a timestamp)
       var localRows=(d?d.rows||[]:rows).length;
       var cloudRows=(cloudData.rows||[]).length;
-      if(cloudRows!==localRows||JSON.stringify(cloudData)!==JSON.stringify(d)){
-        rows=cloudData.rows||[];projLink=cloudData.projectLink||"";revPlan=cloudData.revPlan||[];buildRevTable();
-        var ps=cloudData.pStart||"",pe=cloudData.pEnd||"";
-        if(ps)dpSet("pStart",ps);if(pe)dpSet("pEnd",pe);
+      if(cloudRows!==localRows||JSON.stringify(cloudData.rows)!==JSON.stringify(d?d.rows:[])){
+        rows=cloudData.rows||[];projLink=cloudData.projectLink||"";
+        if(cloudData.revPlan)revPlan=cloudData.revPlan;buildRevTable();
         if(cloudData.scale)document.getElementById("scaleMode").value=cloudData.scale;
+        // NEVER overwrite pStart/pEnd from cloud - always use portfolio meta (authoritative)
+        var metaNow=getProjMeta(id);
+        if(metaNow&&metaNow.start)dpSet("pStart",metaNow.start);
+        if(metaNow&&metaNow.end)dpSet("pEnd",metaNow.end);
         rows.forEach(function(r){r.gl=r.gl||"";r.al=r.al||"";r.typ=r.typ||"Ausfuehrung";gc(r.g);});
         buildTable();buildSumCards();buildGantt();
         setSyncStatus("ok","Synchronisiert "+new Date().toLocaleTimeString("de-AT"));
@@ -940,8 +942,8 @@ function renderProjects(){
     if(p.client)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">'+p.client+'</span>';
     if(p.location)html+='<span class="meta-tag" style="background:#f0f0f0;color:#555;">📍'+p.location+'</span>';
     html+='</div>';
-    var dispStart=pd&&pd.pStart?pd.pStart:p.start;
-    var dispEnd=pd&&pd.pEnd?pd.pEnd:p.end;
+    var dispStart=p.start||(pd&&pd.pStart?pd.pStart:"");
+    var dispEnd=p.end||(pd&&pd.pEnd?pd.pEnd:"");
     html+='<div class="proj-dates">📅 <span>'+isoToDisp(dispStart)+'</span> - <span>'+isoToDisp(dispEnd)+'</span>';
     if(p.desc)html+=' &middot; <span style="color:#aaa;">'+p.desc.substring(0,50)+(p.desc.length>50?'...':'')+'</span>';
     html+='</div>';
@@ -995,7 +997,7 @@ function renderProjects(){
 // ---
 function showNewProject(){
   ["mName","mClient","mDesc","mId","mLocation","mLink"].forEach(function(id){document.getElementById(id).value="";});
-  dpSet("mStart","");dpSet("mEnd","");var _ms=document.getElementById("mStart-iso");var _me=document.getElementById("mEnd-iso");if(_ms)_ms.value="";if(_me)_me.value="";
+  document.getElementById("mStart").value="";document.getElementById("mEnd").value="";mStartVal="";mEndVal="";
   document.getElementById("mStatus").value="planned";document.getElementById("mColor").value="#378ADD";
   document.getElementById("mEditId").value="";document.getElementById("modalTitle").textContent="Neues Projekt";fillTypeSel("mTyp","");
   document.getElementById("projModalBg").style.display="flex";
@@ -1007,13 +1009,8 @@ function editProject(id){
   document.getElementById("mName").value=p.name||"";document.getElementById("mClient").value=p.client||"";
   document.getElementById("mDesc").value=p.desc||"";document.getElementById("mId").value=p.projId||"";
   document.getElementById("mLocation").value=p.location||"";
-  dpSet("mStart",p.start||"");
-  dpSet("mEnd",p.end||"");
-  // Also directly set hidden ISO inputs
-  var msi=document.getElementById("mStart-iso");
-  var mei=document.getElementById("mEnd-iso");
-  if(msi)msi.value=p.start||"";
-  if(mei)mei.value=p.end||"";
+  document.getElementById("mStart").value=p.start||"";mStartVal=p.start||"";
+  document.getElementById("mEnd").value=p.end||"";mEndVal=p.end||"";
   document.getElementById("mStatus").value=p.status||"planned";
   document.getElementById("mColor").value=p.color||"#378ADD";document.getElementById("mLink").value=p.link||"";fillTypeSel("mTyp",p.projType||"");
   document.getElementById("mEditId").value=id;document.getElementById("projModalBg").style.display="flex";
@@ -1023,11 +1020,10 @@ function saveProject(){
   var name=document.getElementById("mName").value.trim();
   if(!name){showToast("Bitte Projektname eingeben.");return;}
   var editId=document.getElementById("mEditId").value;
-  // Read ISO values from hidden inputs (most reliable) with fallback to dpGetISO
-  var msi=document.getElementById("mStart-iso");
-  var mei=document.getElementById("mEnd-iso");
-  var startISO=(msi&&msi.value)?msi.value:dpGetISO("mStart");
-  var endISO=(mei&&mei.value)?mei.value:dpGetISO("mEnd");
+  // Read .value directly (always current), sync capture vars
+  var startISO=document.getElementById("mStart").value||mStartVal||"";
+  var endISO=document.getElementById("mEnd").value||mEndVal||"";
+  mStartVal=startISO;mEndVal=endISO;
   var proj={name:name,client:document.getElementById("mClient").value.trim(),
     desc:document.getElementById("mDesc").value.trim(),projId:document.getElementById("mId").value.trim(),
     location:document.getElementById("mLocation").value.trim(),start:startISO,end:endISO,
@@ -1069,6 +1065,12 @@ function saveProject(){
         localStorage.setItem(PROJ_KEY+_editId,JSON.stringify(gd));
         sbSet(PROJ_KEY+_editId,gd,null);
       }
+      // Immediately update localStorage with new dates (sync, no race condition)
+      var localGd=getProjData(_editId)||{rows:[],projectLink:"",scale:"month",revPlan:[]};
+      if(_startISO)localGd.pStart=_startISO;
+      if(_endISO)localGd.pEnd=_endISO;
+      localStorage.setItem(PROJ_KEY+_editId,JSON.stringify(localGd));
+      // Then fetch cloud data to also preserve revPlan and push back
       sbGet(PROJ_KEY+_editId,function(err,cloudGd){
         applyRevPlanUpdate(!err&&cloudGd?cloudGd:getProjData(_editId));
       });
